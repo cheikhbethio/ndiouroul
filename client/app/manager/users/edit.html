@@ -1,0 +1,84 @@
+<div class="updateUser">
+
+   
+    <my-info info='info'></my-info>
+
+
+    <div class="updateUser-content col-sm-8 col-sm-offset-2">
+        <div class="row message-edit-user-panel">
+            <span class="meup-content">
+                {{message}}
+            </span>
+        </div>        
+        <div ng-if="theStatus === 'InProcess'">
+            <span>Voulez-vous valider cette de demande d'inscription? </span>
+            <button class="btn btn-info pull-right" ng-click="validateUser()">OUI</button>            
+            <button class="btn btn-danger pull-right" ng-click="deleteUser()">NON</button>            
+        </div>
+        
+        <div ng-if="!isMe()">
+            <span>Voulez-vous supprimer cet utilisateur? </span>
+            <button class="btn btn-danger pull-right" ng-click="deleteUser()">OUI je supprime</button> <br/>
+        </div>
+		<form name="userUpdate" novalidate ng-if="theStatus === 'Validated'">
+			<div class="droit-user-panel form-group">
+				<span>Veillez choisir un de ces droits pour un changement:</span>
+				<select ng-model="right" name="rightGetter" class="form-control">
+					<option value="0">Membre simple</option>
+					<option value="1">Redacteur</option>
+					<option value="2">Superviseur</option>
+				</select>
+			</div>
+			<button class="btn btn-success" ng-disabled="!userUpdate.$dirty" ng-click="UpdateUser()">
+				Valider les modifications
+			</button>
+		</form>
+    </div>
+
+
+ <!--    <div class="updateTitle col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+        <h3>Modification des infos de l'utilisateur</h3>
+        <em>sauf mot de passe et emails: ce-ci est perso et est géré dans les profils</em>
+    </div>
+
+
+    <div class="signForm col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+        <form name="userForm"  class="form-group col-xs-10 col-xs-offset-1" novalidate>
+			
+				
+	
+    <my-info info='info'></my-info>
+
+            <div class="form-group"  
+	ng-class="{ 'has-error': userForm.lastname.$invalid && userForm.lastname.$dirty }">
+                <label for="lastname">Nom</label>
+                <input type="text" 
+                    class="form-control" 
+                    id="lastname"  
+                    name="lastname"  
+                    ng-model="user.local.lastname" 
+                    required minlength="2">
+            </div>
+
+
+            <div class="form-group" 
+            	ng-class="{ 'has-error': userForm.firstname.$invalid && userForm.firstname.$dirty }">
+                <label for="firstname">Prenom</label>
+                <input type="text" 
+                    class="form-control" 
+                    id="firstname" 
+                    name="firstname" 
+                    ng-model="user.local.firstname" 
+                    required minlength="2">
+            </div>
+
+			<button type="submit" class="btn btn-success" ng-disabled="!userForm.$valid" 
+ ng-click="saveUser(user)">Valider</button>
+            <button type="reset" class="btn btn-primary" ng-click="cancel()">Annuler</button>
+			<button type="submit" class="btn btn-danger" ng-click="deleteUser(user)">Supprimer</button>
+            
+
+        </form>
+    </div> -->
+
+</div>

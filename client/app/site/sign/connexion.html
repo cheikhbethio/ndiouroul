@@ -1,0 +1,38 @@
+<div class="sign">
+
+    <div class="signHeader col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+        <h3>Merci de saisir vos identifiants pour vous connecter.</h3>
+    </div>
+
+    <div class="signForm col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+        <form name="connectionForm" class="form-group col-xs-10 col-xs-offset-1 col-sm-10" novalidate>
+
+			<my-info info='info'></my-info>
+
+            <div class="form-group">
+                <label for="login">Votre identifiant</label>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">@</span>
+                    <input type="text" class="form-control" name="login" id="login" placeholder="PseudoName" ng-model="user.login" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Votre mot de passe</label>
+                <input type="password" class="form-control" name="password"  id="password" placeholder="Mot de passe" ng-model="user.password" required>
+            </div>
+
+            <button type="submit" class="btn btn-success" ng-click="connexion()">Se Connecter</button>
+
+            <div class="externLink layout-row layout-align-end-center">
+                <label class="">
+                    <a ui-sref ="site.regeneratePassWord">identifiants perdus</a>
+                </label>
+                <label class="">
+                    <a ui-sref="site.registration">pas encore inscrit</a>
+                </label>
+            </div>
+        </form>
+    </div>
+
+</div>

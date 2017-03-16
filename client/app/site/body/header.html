@@ -1,0 +1,67 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#/">Publications de grâce</a>
+		</div>
+		<div id="navbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+
+				<li>
+					<a ui-sref="site.allPoems" ui-sref-active="active" >
+						<span class="glyphicon glyphicon-list"></span>
+						<span>Tous les poèmes</span>
+					</a>
+				</li>
+				<li  ng-if="confVariable.isConnected && confVariable.forManagement">
+					<a ui-sref="dashboard.home" ui-sref-active="active" >
+						<span class="glyphicon glyphicon-wrench"></span>
+						<span>
+							Gestion du site
+						</span>
+					</a>
+				</li>
+				<li  ng-if="confVariable.isConnected">
+					<a ui-sref="site.profile.me" ui-sref-active="active" >
+						<span class="glyphicon glyphicon-user"></span>
+						<span>
+							Mon profil
+						</span>
+					</a>
+				</li>
+				<li  ng-if="!confVariable.isConnected">
+					<a ui-sref="site.connexion" ui-sref-active="active" >
+						<span class="glyphicon glyphicon-user"></span>
+						<span>
+							Connection
+						</span>
+					</a>
+				</li>
+				<li ng-if="confVariable.isConnected">
+					<a ng-click="toDisconnect()">
+						<span class="glyphicon glyphicon-log-out"></span>
+						<span>
+							Déconnexion
+						</span>
+					</a>
+				</li>
+				<li ng-if="!confVariable.isConnected">
+					<a ui-sref="site.registration" ui-sref-active="active" >
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+						<span>
+							Inscription
+						</span>
+					</a>
+				</li>
+				<li  class="panel-name" ng-if="confVariable.isConnected">
+					<span>{{cookieUser.firstname}}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>

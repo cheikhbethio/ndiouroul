@@ -1,0 +1,289 @@
+@import url(https://fonts.googleapis.com/css?family=Lily+Script+One&subset=latin,latin-ext);
+
+.errorMsg{
+	color: red;
+}
+.notDisplay{
+display: none;
+}
+/* ---------------------
+	Flex Alignement
+------------------------ */
+
+/* ----------------------
+   Alignement des enfants :
+   - En ligne
+---------------------- */
+.layout-row {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+.layout-row > .flex {
+    min-width: 0;
+}
+/* ----------------------
+   Alignement des enfants :
+   - En colonne
+---------------------- */
+.layout-column {
+	display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+.layout-column > .flex {
+    -ms-flex-basis: auto;
+    -webkit-flex-basis: auto;
+    -ms-flex-preferred-size: auto;
+    flex-basis: auto;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : au début
+   - Vertical : au début
+---------------------- */
+.layout-align-start-start {
+	-webkit-align-content: flex-start;
+    -ms-flex-line-pack: flex-start;
+    align-content: flex-start;
+
+    -webkit-align-items: flex-start;
+    -ms-flex-align: flex-start;
+    align-items: flex-start;
+
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: flex-start;
+    justify-content: flex-start;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : au début
+   - Vertical : étendu sur la hauteur
+   Etirer sur la hauteur
+---------------------- */
+.layout-align-start-stretch {
+	-webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: flex-start;
+    justify-content: flex-start;
+}
+
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : au début
+   - Vertical : au centre
+---------------------- */
+.layout-align-start-center {
+	-webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: flex-start;
+    justify-content: flex-start;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : a la fin
+   - Vertical : au centre
+---------------------- */
+.layout-align-end-center {
+	-webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: flex-end;
+    justify-content: flex-end;
+}
+/* ----------------------
+2 lignes ou plus :
+   Alignement des enfants :
+   - Horizontal  au centre:
+   - Vertical : a la fin
+---------------------- */
+.layout-align-center-end {
+	-webkit-align-content: flex-end;
+    -ms-flex-line-pack: flex-end;
+    align-content: flex-end;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+/* ----------------------
+1 seule ligne :
+   Alignement des enfants :
+   - Horizontal  au centre:
+   - Vertical : a la fin
+---------------------- */
+.layout-align-center-end-one {
+    -webkit-align-items: flex-end;
+    -ms-flex-align: flex-end;
+    align-items: flex-end;
+
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : au centre
+   - Vertical : au début
+---------------------- */
+.layout-align-center-start {
+	-webkit-align-content: flex-start;
+    -ms-flex-line-pack: flex-start;
+    align-content: flex-start;
+
+    -webkit-align-items: flex-start;
+    -ms-flex-align: flex-start;
+    align-items: flex-start;
+
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : au centre
+   - Vertical : au centre
+---------------------- */
+.layout-align-center-center {
+	-webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : un espace entre chaque enfant
+   - Vertical : au centre
+---------------------- */
+.layout-align-space-between-center {
+	-webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: space-between;
+    justify-content: space-between;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : un espace entre chaque enfant
+   - Vertical : au centre
+---------------------- */
+.layout-align-space-between-stretch {
+	-webkit-align-content: stretch;
+    -ms-flex-line-pack: stretch;
+    align-content: stretch;
+
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: space-between;
+    justify-content: space-between;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : un espace entre chaque enfant
+   - Vertical : au début
+---------------------- */
+.layout-align-space-between-start {
+	-webkit-align-content: flex-start;
+    -ms-flex-line-pack: flex-start;
+    align-content: flex-start;
+
+    -webkit-align-items: flex-start;
+    -ms-flex-align: flex-start;
+    align-items: flex-start;
+
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: space-between;
+    justify-content: space-between;
+}
+/* ----------------------
+   Alignement des enfants :
+   - Horizontal : un espace entre chaque enfant
+   - Vertical : au centre
+---------------------- */
+.layout-align-space-around-center {
+	-webkit-align-content: center;
+    -ms-flex-line-pack: center;
+    align-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    -webkit-justify-content: space-around;
+    -ms-flex-pack: space-around;
+    justify-content: space-around;
+}
+
+/*modal*/
+.modal-content{
+	border : 0px;
+}
+
+.divider{
+	margin: 5px 0 5px 0;
+    border-top: 1px solid #ddd;
+}
+
+.carousel, .carousel .carousel-inner, .carousel .carousel-inner > .active, .carousel .carousel-inner > .active > img{
+  height: inherit;
+}
+
+.carousel .carousel-caption{
+  color: black;
+  text-shadow: none;
+  font-size: 2vw;
+}
+
+.carousel-indicators{
+  display: none;
+}
+
+a.carousel-control {
+    opacity: 0;
+}

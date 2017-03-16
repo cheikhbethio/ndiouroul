@@ -1,0 +1,98 @@
+<div class="profile-edit-panel row">
+
+    <my-info info='info'></my-info>
+
+	<form name="editForm" class="form-group col-sm-10" novalidate>
+
+<!--NOM-->
+        <div class="form-group"  ng-class="{ 'has-error': editForm.lastname.$invalid && editForm.lastname.$dirty }">
+            <label for="lastname">Votre Nom</label>
+            <input type="text"
+                class="form-control"
+                id="lastname"
+                name="lastname"
+                ng-model="user.local.lastname"
+                placeholder=" votre nom"
+                required minlength="3">
+        </div>
+
+<!--Prenom-->
+        <div class="form-group" ng-class="{ 'has-error': editForm.firstname.$invalid && editForm.firstname.$dirty }">
+            <label for="firstname">Prenom</label>
+            <input type="text"
+                class="form-control"
+                id="firstname"
+                name="firstname"
+                placeholder="Saisissez Votre Prenom"
+                ng-model="user.local.firstname"
+                required minlength="2">
+        </div>
+
+<!--Téléphone-->
+        <div class="form-group" ng-class="{ 'has-error': editForm.phone.$invalid && editForm.phone.$dirty }">
+            <label for="phone">Téléphone</label>
+            <input type="text" class="form-control"
+                id="phone"
+                name="phone"
+                placeholder="Saisissez Votre Pseudo"
+                ng-model="user.local.phone"
+                >
+        </div>
+
+<!--Email-->
+        <div class="form-group" ng-class="{ 'has-error': editForm.email.$invalid && editForm.email.$dirty }">
+            <label for="email">Email</label>
+            <input type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Saisissez Votre Email"
+                ng-model="user.local.email"
+                required>
+
+            <p class="help-block input-group-addon" ng-if="editForm.email.$error.email">Adresse mail invalid</p>
+        </div>
+
+<!--photo-->
+        <div class="form-group" ng-class="{ 'has-error': editForm.phone.$invalid && editForm.phone.$dirty }">
+            <label for="phone">Photo</label>
+            Le changement de la photo est pour bientôt
+        </div>
+
+<!--Changement de mot de passe-->
+	<div class="form-group pwdToggle">
+			<span  ng-click="pwdToggle = !pwdToggle">{{pwdToggle ? "Je ne veux plus changer  mon mot de passe" : "Je veux changer mon mot de passe"}}</span>
+	</div>
+		<div ng-if="pwdToggle">
+            <div class="form-group" ng-class="{ 'has-error':
+            editForm.newPassword.$invalid }">
+                <label for="newPassword">Nouveau mot de passe</label>
+                <input type="password"
+                    class="form-control"
+                    id="newPassword"
+                    name="newPassword"
+                    placeholder="Saisissez Votre Mot de passe"
+                    ng-model="user.local.newPassword"
+                    minlength="5"
+                    required>
+            </div>
+            <div class="form-group" ng-class="{ 'has-error':
+            user.local.passwordConfirmation !== user.local.newPassword}">
+                <label for="passwordConfirmation">Confirmation nouveau mot de passse</label>
+                <input type="password"
+                    class="form-control"
+                    id="passwordConfirmation"
+                    name="passwordConfirmation"
+                    placeholder="Confirmation mot de Passe"
+                    ng-model="user.local.passwordConfirmation"
+                    minlength="5"
+					required>
+            </div>
+		</div>
+
+		<button type="submit" class="btn btn-success" ng-disabled="!editForm.$valid" ng-click="upUser(user)">Mettre à jour</button>
+        <button type="reset" class="btn btn-default" ng-click="reseteditForm()">Vider les champs</button>
+
+	</form>
+
+</div>

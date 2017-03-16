@@ -1,0 +1,114 @@
+
+/*les 10 derniers poemes*/
+
+.lastPoeme{
+    font-family: Helvetica, sans-serif;
+}
+
+.lastPoeme .detail{
+    border: solid #f7f7f9;
+    font-size: large;
+    font-weight: 500;
+}
+.lastPoeme .list .table{
+    border: solid #f7f7f9;
+}
+
+.lastPoeme .messageDetailsPoem{
+	font-size: 25px;
+	color: #696969;
+	background-color: #F0FFF0;
+    border-radius: 10px;
+    padding: 50px;
+}
+
+.lastPoeme .poemeContent, .showPoem .poemeContent{
+	border-radius: 10px;
+	background-color: #EDFBE9;
+	padding: 20px;	
+}
+
+.allPoem .table{
+	/*min-width: 850px;*/
+}
+.allPoem .table tbody td:first-child{
+	/*min-width: 200px*/
+}
+.allPoem .table tbody td:nth-child(2){
+	min-width: 200px;
+}
+.allPoem .table tbody td:nth-child(3){
+	min-width: 200px;
+}
+.allPoem .table td{
+    border-right: 1px solid #ddd;
+}
+.allPoem .table td:last-child{
+    border-right: 0px;
+}
+
+.allPoem .table tbody td:nth-child(4), .allPoem .table tbody td:nth-child(5){
+	min-width: 90px;
+	margin: auto;
+}
+
+.allPoem .table tbody td:nth-child(4) .glyphicon-remove, .allPoem .table tbody td:nth-child(5) .glyphicon-remove{
+	color: maroon;
+}
+.allPoem .table tbody td:nth-child(4) .glyphicon-ok, .allPoem .table tbody td:nth-child(5) .glyphicon-ok{
+	color: green;
+}
+
+/*********************************************
+	show Poeme
+**********************************************/
+.showPoem .detail{
+    border: solid #f7f7f9;
+    font-size: large;
+    font-weight: 500;
+	line-height: 50px;
+}
+
+.showPoem .detail .blabla .col-sm-12 span:last-of-type{
+	margin-left: 15px;
+	font-family: 'Lily Script One', cursive;
+	font-size: 20px;
+	color: #468046;
+}
+
+.showPoem .detail .blabla .col-sm-12{
+	border-bottom: solid #f2dddd  1.5px;
+}
+
+.showPoem .detail {
+	border: solid 2px #A9A138;
+	border-radius: 10px;
+}
+.showPoem .poemeContent{
+	/*margin-left: 10px;*/
+}
+.showPoem .title{
+	margin-top: 0px;
+}
+.showPoem .action{
+	margin: 20px 0px 20px 0px; 
+}
+.showPoem .action button:last-of-type{
+	margin-left: 10px;
+} 
+
+/*background-color: black;*/
+
+/***********Modal de la tof choice ************/
+
+.tofPoem img{
+	width: 245px;
+	height: 180px;
+	margin: 0px 10px 10px 0px;
+}
+.selectedTof{
+    border: 20px solid green;
+}
+.showError{
+	color: red;
+}

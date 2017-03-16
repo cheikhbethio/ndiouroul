@@ -1,0 +1,79 @@
+<h2 class="page-header">Liste des utilisateurs</h2>
+<div class="allPoem row">
+	<div class="row">
+		<div class="buttonRecherche pull-left">
+			<button class="btn btn-info lg" ng-click="userShearch = 'Verification email'">Verif email</button>
+			<button class="btn btn-info lg" ng-click="userShearch = 'En attente de Validation' ">Attente Validation</button>
+			<button class="btn btn-success lg"  ng-click="userShearch = 'Actif'">Actifs</button>
+			<button class="btn btn-danger lg"  ng-click="userShearch = 'Suppimé'">Suppimés</button>
+			<button class="btn btn-primary lg"  ng-click="userShearch = ''">Tous</button>
+		</div>
+		<form class="form pull-right" role="form">
+			<div class="form-group">
+				<label for="page_search">Chercher parmis les utilisateurs du site: </label>
+				<input id="page_search" type="text" class="form-control" ng-model="userShearch" placeholder="Votre recherche">
+			</div>
+		</form>
+		
+	</div>
+
+	<table class="table table-hover table-striped">
+		<thead>
+			<tr>
+
+				<th>
+					<span class="glyphicon glyphicon-user"></span>
+					<span class="">Nom et prenom</span>
+				</th>
+
+				<th>
+					<span class="glyphicon glyphicon-log-in"></span>
+					<span class="">Login</span>
+				</th>
+
+				<th>
+					<span class="glyphicon glyphicon-log-in"></span>
+					<span class="">Statut</span>
+				</th>
+
+				<th>
+					<span class=" glyphicon glyphicon-cog "></span>
+					<span class="">Actions</span>
+				</th>
+
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="user in usersList  | filter:userShearch track by $index">
+
+				<td> 
+					<a  ui-sref="dashboard.user.show({id : user._id})">
+						{{user.local.lastname}} &nbsp;{{user.local.firstname}}
+					</a>
+				</td>
+
+				<td>{{user.local.login}}</td>
+
+				<td>{{user.local.status.msg}}</td>
+
+				<td class="layout-align-space-between-center">
+					<!-- visualization -->
+					<a  ui-sref="dashboard.user.show({id : user._id})" class="btn btn-default btn-sm xpull-left">
+						<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+					</a>
+					<!-- edition -->
+					<a  ui-sref="dashboard.user.edit({id : user._id})" class="btn btn-info btn-sm xpull-left">
+						<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+					</a>
+					<!-- delete -->
+					<button class="btn btn-danger btn-sm xpull-left" ng-click="deleteUser(user)">
+						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+					</button>
+				</td>
+
+
+			</tr>
+		</tbody>
+	</table>
+
+</div>

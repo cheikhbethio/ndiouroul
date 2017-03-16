@@ -1,0 +1,41 @@
+{
+  "name": "pdg",
+  "version": "0.2.0",
+  "description": "Back end PDG",
+  "devDependencies": {
+    "chai": "4.0.0-canary.1",
+    "eslint": "^3.16.1",
+    "eslint-config-google": "^0.7.1",
+    "mocha": "*",
+    "should": ">= 0.0.1",
+    "supertest": "^3.0.0",
+    "supertest-as-promised": "^4.0.2"
+  },
+  "scripts": {
+    "start": "nodejs server/server.js",
+    "test": "node_modules/.bin/mocha server/test/*/*/*",
+    "test-e2e": "node_modules/.bin/mocha server/test/e2e/*"
+  },
+  "dependencies": {
+    "bcrypt": "^1.0.2",
+    "body-parser": "1.12.x",
+    "connect-flash": "~0.1.1",
+    "cookie-parser": "1.3.4",
+    "express": "4.12.x",
+    "express-session": "1.10.x",
+    "json-schema": "0.2.3",
+    "log": "^1.4.0",
+    "method-override": "*",
+    "moment": "*",
+    "mongoose": "4.x",
+    "morgan": "1.3.*",
+    "nodemailer": "2.x",
+    "passport": "~0.1.17",
+    "passport-facebook": "~1.0.2",
+    "passport-google-oauth": "~0.1.5",
+    "passport-local": "~0.1.6",
+    "passport-twitter": "~1.0.2",
+    "supervisor": "0.6.x",
+    "underscore": "1.8.3"
+  }
+}

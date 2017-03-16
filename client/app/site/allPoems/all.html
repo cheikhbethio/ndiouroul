@@ -1,0 +1,35 @@
+<div class="row contentRubrique">
+
+	<div class="row listPoeme">
+
+
+			<my-info info='info'></my-info>
+
+			<div class="poemePanelContainer col-sm-4"  ng-repeat="poeme in poemlist track by $index">
+				<div class="poemePanel panel panel-primary">
+				    <div class="poemePanelHeading panel-heading" xstyle="background-color : #CFE1F1; color: black;">
+				      <div class="col-sm-9 author">{{poeme.id_auteur.local.firstname}}  &nbsp;  {{poeme.id_auteur.local.lastname}}</div>
+				      <div class="col-sm-3 date">{{poeme.date | date:'dd MMM yyyy'}}</div>
+				    </div>
+				    <div class="poemePanelBody panel-body">
+						<section class="title" >
+							{{poeme.title}}
+						</section>
+						<div class="divider"></div>
+						<div class="poemePanelText" ng-bind-html="poeme.content">
+						</div>
+				    </div>
+				    <div class="panel-footer">
+				      <div class="pull-left">
+				         <span class="glyphicon glyphicon-floppy-disk"  uib-tooltip="Ajouter à la liste de lecture"></span>
+				       </div>
+				       <div class="pull-right"  ng-click="viewPoem('lg', poeme._id)">
+				         <span>lire la suite</span>
+				       </div>
+				    </div>
+				  </div>
+			</div>
+
+		</div>
+
+</div>

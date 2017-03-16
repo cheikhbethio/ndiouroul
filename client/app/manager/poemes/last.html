@@ -1,0 +1,115 @@
+<h2 class="page-header">Les 10 poèmes les plus récents : </h2>
+
+
+
+<div class='lastPoeme row'>
+
+	<div class="detail col-sm-8">
+		<h3 class="page-header text-center">Détails du poeme sélectionné: </h3>
+		
+		<div  ng-if="!poemToDisplay" class="messageDetailsPoem">
+			<span class="text-justify">Pour voir les détails d'un poeme, vous pouvez le séléctionner, ils apparaitront ici</span>
+		</div>
+		
+		<div class="blabla row" ng-if="poemToDisplay">
+			<div class="col-sm-6">
+				<span class="index">Auteur :</span>
+				<span class="value">{{poemToDisplay.id_auteur.local.lastname}}  &nbsp; {{poemToDisplay.id_auteur.local.firstname}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Titre :</span>
+				<span class="value">{{poemToDisplay.title}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Tiré du livre :</span>
+				<span class="value">{{poemToDisplay.from}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Rédigé le :</span>
+				<span class="value">{{poemToDisplay.date | date :'fullDate'}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Publié :</span>
+				<span class="value">{{poemToDisplay.isPublic}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Signalé :</span>
+				<span class="value">{{poemToDisplay.denounced}}</span>
+			</div>
+			<div class="col-sm-12">
+				<span class="index">Rubrique :</span>
+				<span class="value">{{rubricList[poemToDisplay.rubric-1]}}</span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Photo auteur :</span>
+				<span class="value"><i>...a venir...</i></span>
+			</div>
+			<div class="col-sm-6">
+				<span class="index">Photo du Poeme  :</span>
+				<span class="value"><i> ...a venir...</i> </span>
+			</div>
+			<div class="col-sm-12 poemeContent">
+				 <div ng-bind-html="poemToDisplay.content"></div>
+			</div>
+		</div>
+	</div>
+	
+	<div class='list col-sm-4'>
+		<table class="table">
+			  <thead>
+				<tr>
+				  <th>Titre</th>
+				  <th>Auteur</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr  ng-repeat="poem in listPoeme track by $index" ng-class="{success: $odd}" ng-class="{active :  $even}" ng-click="goToPoeme(poem)">
+					<td>{{poem.title}}</td>
+					<td>{{poem.id_auteur.local.lastname}} &nbsp; &nbsp; {{poem.id_auteur.local.firstname}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+<div class="row">
+	<div class="carouselPoeme col-sm-6 col-sm-offset-1">
+		<uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+			<uib-slide ng-repeat="slide in slides track by slide.id" index="slide.id">
+				<img ng-src="{{slide.image}}" style="margin:auto;">
+				<div class="carousel-caption">
+					<h1>Slide {{slide.id}}</h1>
+					<p>{{slide.text}}</p>
+				</div>
+			</uib-slide>
+		</uib-carousel>
+	</div>
+	<div class=" col-sm-4 col-sm-offset-1"> 
+		<ul>
+			<li ng-repeat="poeme in listPoeme">{{poeme.title}}</li>
+		</ul>
+	</div>
+</div>	-->
+
