@@ -3,8 +3,7 @@
 // require("should");
 const chai = require("chai");
 chai.should();
-
-var metiers = require("../../metiers.js");
+const metiers = require("../../services/metiers.js");
 
 describe("test des fonctions métier", function () {
 	describe("isValidModel : validation of model users", function () {

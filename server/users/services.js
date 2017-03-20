@@ -2,11 +2,12 @@
 
 const _ = require("underscore");
 var bcrypt = require("bcrypt");
-const metiers = require("../metiers");
+const metiers = require("../services/metiers");
 const mongoose = require("mongoose");
 const myVar = require("../config/variables.js");
 const responseMsg = myVar.httpMessage.response;
 const ObjectID = require("mongodb").ObjectID;
+const theMailer = require("../config/jobsMailer");
 
 const userValidatorSchema= {
 	type: "object",
@@ -90,7 +91,6 @@ function fillUserModel(source){
 	local.status = myVar.status.watingClicEmail;
 	destination.local = local;
 	let isValidModel = metiers.isValidModel(destination, userValidatorSchema);
-
 	return isValidModel.valid ? destination : undefined;
 }
 
@@ -117,7 +117,7 @@ function createUser(req, res){
 			};
 			res.status(201).json(messageToSending);
 		})
-		.catch((err) => {
+		.catch(() => {
 			return quitWithFailure(req, res, responseMsg.failure.failureMessage);
 		});
 
@@ -163,7 +163,7 @@ function updateUser(req, res){
 		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
 	}
 
-dbAccess.findByIdAndUpdate(req.params.id, req.body)
+	dbAccess.findByIdAndUpdate(req.params.id, req.body)
 	.then((value) => {
 		res.status(201).json({
 			code : "201",
@@ -176,13 +176,48 @@ dbAccess.findByIdAndUpdate(req.params.id, req.body)
 	});
 }
 
-const sayHello = function(){
-	return "Hello word";
-};
-
 function quitWithFailure(req, res, message){
 	return res.status(500).json({code : "500", message :message});
 }
+
+
+function getKeyValidation(req, res) {
+	dbAccess.findOne({ "local.hashkey": req.params.id })
+		.then((value) => {
+				//toEdit
+				theMailer.emailSender(myVar.forMail.admin, myVar.forMail.signUpValidation.subject,
+					myVar.forMail.signUpValidation.text);
+				return res.status(201).json({
+					code : "201",
+					message : responseMsg.success.emailDelivrence
+					});
+		})
+		.catch((err) => {
+				return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		});
+
+		, function (err, user) {
+		if(err || !user) {
+			res.send({
+				message: "Désolé mais ce compte est invalide. Veillez vous réinscrire et faire la valivation dans les plus bref délais.",
+				code: 1
+			});
+		} else {
+			toEdit(user._id, { status: myVar.status.watingValidation });
+			theMailer.emailSender(myVar.forMail.admin, myVar.forMail.signUpValidation.subject, myVar.forMail
+				.signUpValidation.text);
+			res.send({
+				message: "Votre inscription a bien été pris en compte et sera validée par nos équipes dans les plus brefs délais. Merci et à très bientôt",
+				code: 0
+			});
+		}
+	});
+};
+
+
+const sayHello = function(){
+	return "Hello word";
+};
 
 exports = _.extend(exports ,{
 	sayHello : sayHello,
