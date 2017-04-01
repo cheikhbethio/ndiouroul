@@ -14,7 +14,8 @@
   "scripts": {
     "start": "nodejs server/server.js",
     "test": "node_modules/.bin/mocha server/test/*/*",
-    "test-e2e": "node_modules/.bin/mocha server/test/e2e/*"
+    "test-e2e": "node_modules/.bin/mocha server/test/e2e/*",
+    "test-unit" : "node_modules/.bin/mocha server/test/unit/*"
   },
   "dependencies": {
     "bcrypt": "^1.0.2",

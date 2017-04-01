@@ -9,14 +9,6 @@ const userService = require("../../../users/services");
 
 describe("Users: services", function () {
 
-	describe("Firt : hello word", function () {
-		it("t1: doit affichir un hello word", function () {
-			var helloWord = "Hello word";
-			var expectedHello  = userService.sayHello();
-			expectedHello.should.equal(helloWord);
-		});
-	});
-
 	describe("FillUserModel : must create obj for saving :", function(){
 		beforeEach(()=>{
 			this.result = undefined;
@@ -45,7 +37,3 @@ describe("Users: services", function () {
 	});
 
 });
-
-/*
-enregistrement de users
-*/

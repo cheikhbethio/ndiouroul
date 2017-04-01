@@ -8,11 +8,11 @@ const ObjectID = require("mongodb").ObjectID;
 function post(req, res, objectToSave){
 	notDbAccessFound(objectToSave);
 	return objectToSave.save()
-		.then((createUser) => {
+		.then((doc) => {
 			let messageToSending = {
 				code : "201",
 				message : responseMsg.success.successMessage,
-				_id : createUser._id
+				_id : doc._id
 			};
 			res.status(201).json(messageToSending);
 		})
@@ -78,7 +78,7 @@ function update(req, res,dbAccess){
 
 function notDbAccessFound(dbAccess){
 	if (_.isUndefined(dbAccess))
-		throw "Pas de porte d'entrée à la base";
+		throw "Pas de point d'entrée à la base";
 }
 
 function quitWithFailure(req, res, message){

@@ -1,9 +1,3 @@
-var db_user = require("../model/user.js");
-var job = require("../config/jobs.js");
-var mayVar = require("../config/variables.js");
-var serviceRoute = "/users";
-var apiRoute = mayVar.routes.API + serviceRoute;
-
 const userServices = require("./services");
 
 module.exports = function (app) {

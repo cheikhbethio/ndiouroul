@@ -19,7 +19,6 @@ describe("User tests", function () {
 		this.user = {
 			firstname :  "moussa",
 			lastname : "sow",
-			phone : "123",
 			password : "123",
 			login : "momo",
 			email : "mmoussasow@gmail.com"
@@ -50,7 +49,7 @@ describe("User tests", function () {
 		});
 
 		//already exist by email, bay login
-		it("must not create an exist user grep by the same login", function() {
+		it("msow must not create an exist user grep by the same login", function() {
 			this.user.email = "otherEmail@gmail.com";
 			return request(app)
 				.post(url)
@@ -84,20 +83,21 @@ describe("User tests", function () {
 			this.user = {
 				firstname :  "moussa",
 				lastname : "sow",
-				phone : "123",
+				phone : "1234",
 			};
 			return request(app)
 				.post(url)
 				.send(this.user)
 				.expect(500)
-				.catch(res => {
-					this.messageToRecieve = {code : "500", message : this.httpResponseMessage.failure.failureMessage};
-					return expect(res.body).to.deep.equal(this.messageToRecieve);
+				.then(res => {
+					this.messageToRecieve = {code : "500", message : this.httpResponseMessage.failure.invalidSchema};
+					expect(res.body).to.deep.equal(this.messageToRecieve);
+					return;
 				});
 		});
 	});
 
-	describe("t : Find user one or many", function() {
+	describe("Find user one or many", function() {
 
 		beforeEach(function() {
 			this. userId;
@@ -116,12 +116,12 @@ describe("User tests", function () {
 			.expect(200)
 			.then((value) => {
 				let res = value.body.user;
-				let otherProperties = _.pick(res.local, "firstname", "lastname", "phone", "login","email","right");
+				let otherProperties = _.pick(res, "firstname", "lastname", "phone", "login","email","right");
 
 				expect(res._id).to.equal(this.userId);
-				expect(res.local.status).to.deep.equal(myVar.status.watingClicEmail);
-				expect(res.local.password).to.be.a("string");
-				expect(res.local.created_at).to.be.a("string");
+				expect(res.status).to.deep.equal(myVar.status.watingClicEmail);
+				expect(res.password).to.be.a("string");
+				expect(res.created_at).to.be.a("string");
 				this.user = _.omit(this.user, "password");
 				this.user.right = "salsa";
 				expect(otherProperties).to.deep.equal(this.user);
@@ -223,16 +223,16 @@ describe("User tests", function () {
 			let tab = ["firstname", "lastname", "phone", "password", "login", "email"];
 
 			tab.forEach(function(elem){
-				describe("aaaa", function() {
+				describe("property " + elem , function() {
 					beforeEach(function(){
-						this.toPath = {local : {}};
-						this.toPath.local[elem] = "toto";
+						this.propertyToUpdate = {};
+						this.propertyToUpdate[elem] = "toto";
 					});
 
 					it("Update the propertie " + elem, function(){
 						return request(app)
 							.patch(url + "/" + this.userId)
-							.send(this.toPath)
+							.send(this.propertyToUpdate)
 							.expect(201)
 							.then((res) => {
 								this.messageToRecieve = {

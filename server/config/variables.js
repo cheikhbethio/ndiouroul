@@ -63,17 +63,19 @@ var myMsg = {
 	}
 };
 
-let successMessage = "Succes de l'operation";
-let failureMessage = "Echec de l'operation";
-let existenceMessage  = "Ce document existe déjà";
+const successMessage = "Succes de l'operation";
+const failureMessage = "Echec de l'operation";
+const existenceMessage  = "Ce document existe déjà";
+const invalidSchema = "json-schema invalid";
 const httpMessage = {
 	response : {
 		success : {
-			successMessage :successMessage,
-			existenceMessage : existenceMessage
+			successMessage,
+			existenceMessage
 		},
 		failure : {
-			failureMessage : failureMessage,
+			failureMessage,
+			invalidSchema
 		}
 	}
 };
