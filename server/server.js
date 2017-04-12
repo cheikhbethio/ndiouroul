@@ -20,7 +20,7 @@ var configDB = require("./config/database.js");
 const port = process.env.PORT || 8000;
 
 mongoose.Promise = global.Promise;
-mongoose.connect(configDB.db.url);
+mongoose.connect(configDB.db.test);
 
 // on recup les variables
 
@@ -64,7 +64,7 @@ app.listen(port, function () {
 	print.info("node server on port : " + port);
 	print.info("application_root : " + application_root);
 });
-// 
+//
 // require("./route/user.js")(app);
 // require("./route/connection.js")(app, passport);
 // require("./route/poeme.js")(app);

@@ -11,52 +11,62 @@ const app = require("../../server");
 const myVar = require("../../config/variables");
 const url = "/api/public/user";
 const adminUrl = "/api/admin/user";
+const userServices = require("../../users/services");
 
 describe("User tests", function () {
 	beforeEach(function() {
 		this.httpResponseMessage = myVar.httpMessage.response;
 		this.messageToRecieve ;
-		this.user = {
+		this.user1 = {
 			firstname :  "moussa",
 			lastname : "sow",
 			password : "123",
 			login : "momo",
 			email : "mmoussasow@gmail.com"
 		};
+		this.user2 = {
+			firstname :  "moussa1",
+			lastname : "sow2",
+			password : "1232",
+			login : "momo2",
+			email : "mmoussasow2@gmail.com"
+		};
 	});
 
 	describe("Creation", function() {
 
-		beforeEach(function(){
+		it("create a user", function () {
 			return request(app)
 				.post(url)
-				.send(this.user)
+				.send(this.user1)
 				.expect(201)
 				.then((res) => {
-					this.userId = res._id;
-					this.createdUser = res.body;
+					this.createdUserReponse = res.body;
+					let  messageToRecieve = {
+						code : "201",
+						message : this.httpResponseMessage.success.successMessage,
+						_id : this.createdUserReponse._id
+					};
+					expect(this.createdUserReponse).to.deep.equal(messageToRecieve);
+					return;
 				});
 		});
 
-		it("create a user", function () {
-			let  messageToRecieve = {
-				code : "201",
-				message : this.httpResponseMessage.success.successMessage,
-				_id : this.createdUser._id
-			};
-			expect(this.createdUser).to.deep.equal(messageToRecieve);
-			return;
-		});
-
 		//already exist by email, bay login
-		it("msow must not create an exist user grep by the same login", function() {
-			this.user.email = "otherEmail@gmail.com";
-			return request(app)
-				.post(url)
-				.send(this.user)
+		it("must not create an exist user grep by the same login", function() {
+			const clonedUser = _.clone(this.user1);
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return userToSave1.save()
+				.then(() => {
+					clonedUser.email = "otherEmail@gmail.com";
+					return request(app)
+						.post(url)
+						.send(clonedUser)
+						.expect(400);
+				})
 				.then((res) => {
 					let  messageToRecieve = {
-						code : "500",
+						code : 400,
 						message : this.httpResponseMessage.success.existenceMessage,
 					};
 					expect(res.body).to.deep.equal(messageToRecieve);
@@ -64,14 +74,20 @@ describe("User tests", function () {
 				});
 		});
 
-		it("must not create an exist user grep by the same login", function() {
-			this.user.login = "otherLogin";
-			return request(app)
-				.post(url)
-				.send(this.user)
+		it("must not create an exist user grep by the same email", function() {
+			const clonedUser = _.clone(this.user1);
+			clonedUser.login = "otherLogin";
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return userToSave1.save()
+				.then(() => {
+					return request(app)
+					.post(url)
+					.send(clonedUser)
+					.expect(400);
+				})
 				.then((res) => {
 					let  messageToRecieve = {
-						code : "500",
+						code : 400,
 						message : this.httpResponseMessage.success.existenceMessage,
 					};
 					expect(res.body).to.deep.equal(messageToRecieve);
@@ -80,54 +96,68 @@ describe("User tests", function () {
 		});
 
 		it("must not crate user because of bad model", function() {
-			this.user = {
+			const userModel = {
 				firstname :  "moussa",
 				lastname : "sow",
 				phone : "1234",
 			};
 			return request(app)
 				.post(url)
-				.send(this.user)
+				.send(userModel)
 				.expect(500)
 				.then(res => {
-					this.messageToRecieve = {code : "500", message : this.httpResponseMessage.failure.invalidSchema};
+					this.messageToRecieve = {code : 500, message : this.httpResponseMessage.failure.invalidSchema};
 					expect(res.body).to.deep.equal(this.messageToRecieve);
 					return;
 				});
 		});
 	});
 
-	describe("Find user one or many", function() {
+	describe("get and getAll", function() {
 
 		beforeEach(function() {
-			this. userId;
-			return request(app)
-				.post(url)
-				.send(this.user)
-				.then((res) => {
-					this.userId = res.body._id;
+			this.usersListLenght = 2;
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			const userToSave2 = new userServices.userDbAccess(userServices.fillUserModel(this.user2));
+			return userToSave1.save()
+				.then((doc1) => {
+					this.userId1 = doc1._id;
+					return userToSave2.save();
+				})
+				.then((doc2) => {
+					this.userId2 = doc2._id;
 					return;
 				});
 		});
 
-		it("findUser :  by ID", function() {
+		it("findUser : by _id", function() {
 			return request(app)
-			.get(url + "/"+this.userId)
+			.get(url + "/"+this.userId1)
 			.expect(200)
 			.then((value) => {
 				let res = value.body.user;
 				let otherProperties = _.pick(res, "firstname", "lastname", "phone", "login","email","right");
-
-				expect(res._id).to.equal(this.userId);
 				expect(res.status).to.deep.equal(myVar.status.watingClicEmail);
 				expect(res.password).to.be.a("string");
 				expect(res.created_at).to.be.a("string");
-				this.user = _.omit(this.user, "password");
-				this.user.right = "salsa";
-				expect(otherProperties).to.deep.equal(this.user);
+				expect(otherProperties).to.deep.equal(_.pick(this.user1, "firstname", "lastname", "phone", "login","email","right"));
 				return;
 			});
+		});
 
+		it("msow find many users", function() {
+			return request(app)
+				.get(adminUrl)
+				.expect(200)
+				.then((response) => {
+					const usersList = response.body.result;
+					const returnedUser1 = _.pick(usersList[0], "firstname", "lastname", "login", "email");
+					const returnedUser2 = _.pick(usersList[1], "firstname", "lastname", "login", "email");
+					expect(usersList.length).to.be.equal(2);
+					expect(returnedUser1).to.deep.equal(_.pick(this.user1, "firstname", "lastname", "login", "email"));
+					expect(returnedUser2).to.deep.equal(_.pick(this.user2, "firstname", "lastname", "login", "email"));
+					return;
+				});
 		});
 
 		it("findUser : not user to find with a bad ObjectID", function() {
@@ -153,24 +183,21 @@ describe("User tests", function () {
 			});
 		});
 
-
 	});
 
 	describe("Deletion", function() {
 		beforeEach(function() {
-			this. userId;
-			return request(app)
-				.post(url)
-				.send(this.user)
-				.then((res) => {
-					this.userId = res.body._id;
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return userToSave1.save()
+				.then((doc1) => {
+					this.userId1 = doc1._id;
 					return;
 				});
 		});
 
 		it("delete an exist user", function() {
 			return request(app)
-				.delete(adminUrl + "/" + this.userId)
+				.delete(adminUrl + "/" + this.userId1)
 				.expect(200)
 				.then((value) => {
 					expect(_.omit(value.body,"_id")).to.deep.equal( {
@@ -198,7 +225,7 @@ describe("User tests", function () {
 				.expect(500)
 				.then((err) => {
 					expect(err.body).to.deep.equal({
-						code : "500",
+						code : 500,
 						message : this.httpResponseMessage.failure.failureMessage
 					});
 					return;
@@ -209,19 +236,17 @@ describe("User tests", function () {
 
 	describe("Update user", function() {
 		beforeEach(function() {
-			this.userId;
-			return request(app)
-				.post(url)
-				.send(this.user)
-				.then((res) => {
-					this.userId = res.body._id;
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return userToSave1.save()
+				.then((doc1) => {
+					console.log("------------", doc1);
+					this.userId1 = doc1._id;
 					return;
 				});
 		});
 
-		describe("with good elements", function() {
-			let tab = ["firstname", "lastname", "phone", "password", "login", "email"];
-
+		describe("moussa with good elements", function() {
+			const tab = ["firstname", "lastname", "phone", "password", "login", "email"];
 			tab.forEach(function(elem){
 				describe("property " + elem , function() {
 					beforeEach(function(){
@@ -231,7 +256,7 @@ describe("User tests", function () {
 
 					it("Update the propertie " + elem, function(){
 						return request(app)
-							.patch(url + "/" + this.userId)
+							.patch(url + "/" + this.userId1)
 							.send(this.propertyToUpdate)
 							.expect(201)
 							.then((res) => {
@@ -245,10 +270,29 @@ describe("User tests", function () {
 								return;
 							});
 					});
-
 				});
+			});
+		});
+
+		describe("actu moussa with bad elements", function() {
+			this.propertyToUpdate = {login : "momo111"};
+			console.log("++++++++++++++++++++", this.propertyToUpdate);
+			it("must not update user because of login presence", function() {
+				return request(app)
+					.put(url + "/" + this.userId1)
+					.send(this.propertyToUpdate)
+					// .expect(400)
+					.then((response) => {
+						this.messageToRecieve = {
+							code : 400,
+							message : this.httpResponseMessage.success.existenceMessage,
+						};
+						expect(response.body).to.deep.equal(this.messageToRecieve);
+					});
 			});
 
 		});
+
+
 	});
 });

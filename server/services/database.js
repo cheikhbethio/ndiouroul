@@ -21,19 +21,35 @@ function post(req, res, objectToSave){
 		});
 }
 
+
 function get(req, res, dbAccess){
 	notDbAccessFound(dbAccess);
 	if(!ObjectID.isValid(req.params.id)){
 		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
 	}
-	return  dbAccess.findById(req.params.id)
+	dbAccess.findById(req.params.id)
 	.then((value) => {
 		let messageToSending = {
 			code : "200",
 			message : responseMsg.success.successMessage,
 			user : value
 		};
-		res.status(200).json(messageToSending);
+		return res.status(200).json(messageToSending);
+	})
+	.catch(() => {
+		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+	});
+}
+
+function getAll(req, res, dbAccess){
+	dbAccess.find()
+	.then((doc) => {
+		const messageToSend = {
+			code : "200",
+			message : responseMsg.success.successMessage,
+			result : doc
+		};
+		return res.status(200).json(messageToSend);
 	})
 	.catch(() => {
 		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
@@ -90,5 +106,6 @@ exports = _.extend(exports ,{
 	update,
 	get,
 	post,
-	quitWithFailure
+	quitWithFailure,
+	getAll
 });
