@@ -80,7 +80,7 @@ function fillUserModel(source){
 function createUser(req, res){
 	let filledUserObject  = fillUserModel(req.body);
 	if (!filledUserObject) {
-		return quitWithFailure(req, res, responseMsg.failure.invalidSchema, 500);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.invalidSchema, 500);
 	}
 
 	let userToCreate = new userDbAccess(filledUserObject);
@@ -88,7 +88,7 @@ function createUser(req, res){
 		{"email" : filledUserObject.email}]})
 		.then(alreadyUsed => {
 			if (alreadyUsed) {
-				return quitWithFailure(req, res, responseMsg.success.existenceMessage, 400);
+				return metiers.quitWithFailure(req, res, responseMsg.success.existenceMessage, 400);
 			}
 			const sentText = myVar.forMail.signUp.text + myVar.myUrl.princiaplURL + myVar.myUrl.emailValidation +
 					filledUserObject.hashed;
@@ -108,7 +108,7 @@ function getAll(req, res){
 
 function deleteUser(req, res){
 	if(!ObjectID.isValid(req.params.id)){
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	}
 	userDbAccess.findByIdAndRemove(req.params.id)
 	.then((value) => {
@@ -119,38 +119,59 @@ function deleteUser(req, res){
 		});
 	})
 	.catch(() => {
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 	});
 }
 //if it is about email or login check if they exist before updating
 //for password regenerate a new password
 function updateUser(req, res){
-	const query = req.body;
-	var objectToCheck = {};
+	let body = req.body;
+	let objectToCheck = {};
+	let messageToRecieve;
+
 	if(!ObjectID.isValid(req.params.id)){
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	}
-	//email
-	if (query.email || query.login) {
-		const propertyToCheck = query.email ? "email" : "login";
-		objectToCheck[propertyToCheck] = query.email ? query.email : query.login;
-	}
-	console.log("+++++++objectToCheck+++++++",req.query, req.body, req.params);
 
-	userDbAccess.findOne(objectToCheck)
-	.then((alreadyUsed) => {
-		console.log("-------alreadyUsed------", alreadyUsed, objectToCheck);
-		if (alreadyUsed && !_.isEmpty(objectToCheck)) {
-			return quitWithFailure(req, res, responseMsg.failure.existenceMessage, 400);
-		}
-		return runUpdate(req, res, req.body);
-	});
+	if (body.email || body.login) {
+		const propertyToCheck = body.email ? "email" : "login";
+		objectToCheck[propertyToCheck] = body.email ? body.email : body.login;
+	}
+
+	userDbAccess.findById(req.params.id)
+		.then((userToPatch) => {
+			const goodGivenPassword = bcrypt.compareSync(body.password, userToPatch.password);
+			if (!_.isEmpty(userToPatch) && goodGivenPassword) {
+				return userDbAccess.findOne(objectToCheck);
+			}
+			messageToRecieve = responseMsg.failure.badPassword;
+			throw new Error(messageToRecieve);
+		})
+		.then((alreadyUsed) => {
+			if (alreadyUsed && !_.isEmpty(objectToCheck)) {
+				messageToRecieve = body.email ? responseMsg.failure.emailPresence :  responseMsg.failure.loginPresence;
+				throw new Error(messageToRecieve);
+			}
+			if (body.newPassword) {
+				body.password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8));
+			}else {
+				body = _.omit(body, "password");
+			}
+			return runUpdate(req, res, body);
+		})
+		.catch((err) => {
+			var message = responseMsg.failure.failureMessage;
+			let code = 500;
+
+			if (err.message === messageToRecieve) {
+				code = 400;
+				message = messageToRecieve;
+			}
+			return metiers.quitWithFailure(req, res, message, code);
+		});
 
 }
 
-function quitWithFailure(req, res, message, code){
-	return res.status(code).json({code : code, message :message});
-}
 
 function runUpdate(req, res, properties){
 	userDbAccess.findByIdAndUpdate(req.params.id, properties)
@@ -162,7 +183,36 @@ function runUpdate(req, res, properties){
 			});
 		})
 		.catch(() => {
-			return quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
+			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
+		});
+}
+
+
+function getKeyValidation(req, res){
+	userDbAccess.findOne({ "hashkey": req.query.key })
+		.then((user) => {
+			if (_.isEmpty(user)){
+				return metiers.quitWithFailure(req, res, responseMsg.failure.getKeyValidation.invalidAccount, 400);
+			}
+			return runKeyValiodation(res, user);
+		})
+		.catch(() => {
+			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
+		});
+}
+
+function runKeyValiodation(res, user){
+	user.status = myVar.status.watingValidation;
+	delete user.hashkey;
+	user.hashkey = undefined;
+	return user.save()
+		.then(() => {
+			theMailer.emailSender(myVar.forMail.admin, myVar.forMail.signUpValidation.subject, myVar.forMail
+				.signUpValidation.text);
+			return res.status(201).json({
+				code :201,
+				message : responseMsg.failure.getKeyValidation.validation
+			});
 		});
 }
 
@@ -174,5 +224,6 @@ exports = _.extend(exports ,{
 	fillUserModel,
 	createUser,
 	getAll,
-	userDbAccess
+	userDbAccess,
+	getKeyValidation
 });

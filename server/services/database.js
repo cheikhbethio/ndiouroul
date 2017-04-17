@@ -4,6 +4,7 @@ const _ = require("underscore");
 const myVar = require("../config/variables.js");
 const responseMsg = myVar.httpMessage.response;
 const ObjectID = require("mongodb").ObjectID;
+const metiers = require("./metiers");
 
 function post(req, res, objectToSave){
 	notDbAccessFound(objectToSave);
@@ -17,7 +18,7 @@ function post(req, res, objectToSave){
 			res.status(201).json(messageToSending);
 		})
 		.catch(() => {
-			return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 		});
 }
 
@@ -25,7 +26,7 @@ function post(req, res, objectToSave){
 function get(req, res, dbAccess){
 	notDbAccessFound(dbAccess);
 	if(!ObjectID.isValid(req.params.id)){
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	}
 	dbAccess.findById(req.params.id)
 	.then((value) => {
@@ -37,7 +38,7 @@ function get(req, res, dbAccess){
 		return res.status(200).json(messageToSending);
 	})
 	.catch(() => {
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	});
 }
 
@@ -52,14 +53,14 @@ function getAll(req, res, dbAccess){
 		return res.status(200).json(messageToSend);
 	})
 	.catch(() => {
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 	});
 }
 
 function deleteDoc(req, res,dbAccess){
 	notDbAccessFound(dbAccess);
 	if(!ObjectID.isValid(req.params.id)){
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage);
 	}
 	return dbAccess.findByIdAndRemove(req.params.id)
 	.then((value) => {
@@ -70,14 +71,14 @@ function deleteDoc(req, res,dbAccess){
 		});
 	})
 	.catch(() => {
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	});
 }
 
 function update(req, res,dbAccess){
 	notDbAccessFound(dbAccess);
 	if(!ObjectID.isValid(req.params.id)){
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	}
 	dbAccess.findByIdAndUpdate(req.params.id, req.body)
 	.then((value) => {
@@ -88,7 +89,7 @@ function update(req, res,dbAccess){
 		});
 	})
 	.catch(() => {
-		return quitWithFailure(req, res, responseMsg.failure.failureMessage);
+		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	});
 }
 
@@ -97,15 +98,11 @@ function notDbAccessFound(dbAccess){
 		throw "Pas de point d'entrée à la base";
 }
 
-function quitWithFailure(req, res, message){
-	return res.status(500).json({code : "500", message :message});
-}
 
 exports = _.extend(exports ,{
 	deleteDoc,
 	update,
 	get,
 	post,
-	quitWithFailure,
 	getAll
 });

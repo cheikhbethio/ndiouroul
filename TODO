@@ -1,24 +1,2 @@
-----------------IHM---------------------
-*) css pour tablette et mobile
-
-
-----------------API---------------------
-*) mise en place de la bonne archi à combiner avec tests
-
-*) pour chaque écrivain on ne doit voir que ses poèmes.
-
-*) il faudrait que les opérations soient perso pour les écrivains et global pour les admins.
-
-Inscription :
-  formatage du email pour faire un lien à client coté admin
-  formatge email pour designe plus beau
-  envoi pseudo dans le email
-
-general :
-date français
-
-profile :
-  dans profile mes poemes recuperer justes mes poemes
-
-accueil :
-  recherche de poeme à l'accueil
+User ==> OK
+Peom =>

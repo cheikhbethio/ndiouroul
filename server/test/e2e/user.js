@@ -11,6 +11,7 @@ const app = require("../../server");
 const myVar = require("../../config/variables");
 const url = "/api/public/user";
 const adminUrl = "/api/admin/user";
+const memberUrl = "/api/member/user";
 const userServices = require("../../users/services");
 
 describe("User tests", function () {
@@ -132,7 +133,7 @@ describe("User tests", function () {
 
 		it("findUser : by _id", function() {
 			return request(app)
-			.get(url + "/"+this.userId1)
+			.get(memberUrl + "/"+this.userId1)
 			.expect(200)
 			.then((value) => {
 				let res = value.body.user;
@@ -145,7 +146,7 @@ describe("User tests", function () {
 			});
 		});
 
-		it("msow find many users", function() {
+		it("find many users", function() {
 			return request(app)
 				.get(adminUrl)
 				.expect(200)
@@ -162,7 +163,7 @@ describe("User tests", function () {
 
 		it("findUser : not user to find with a bad ObjectID", function() {
 			return request(app)
-			.get(url + "/58c54b21326b5b02beb26fe5")
+			.get(memberUrl + "/58c54b21326b5b02beb26fe5")
 			.expect(200)
 			.then((value) => {
 				expect(value.body.user).to.be.null;
@@ -170,13 +171,13 @@ describe("User tests", function () {
 			});
 		});
 
-		it("findUser1 : not user to find with a non ObjectID", function() {
+		it("findUser : not user to find with a non ObjectID", function() {
 			return request(app)
-			.get(url + "/1212")
+			.get(memberUrl + "/1212")
 			.expect(500)
 			.then((value) => {
 				expect(value.body).to.deep.equal({
-					code : "500",
+					code : 500,
 					message : this.httpResponseMessage.failure.failureMessage
 				});
 				return;
@@ -236,56 +237,115 @@ describe("User tests", function () {
 
 	describe("Update user", function() {
 		beforeEach(function() {
-			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
-			return userToSave1.save()
-				.then((doc1) => {
-					console.log("------------", doc1);
-					this.userId1 = doc1._id;
+			this.propertyToUpdate = {};
+			this.userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return this.userToSave1.save()
+				.then((doc) => {
+					this.userId1 = doc._id;
+					this.password = doc.password;
 					return;
 				});
 		});
 
-		describe("moussa with good elements", function() {
-			const tab = ["firstname", "lastname", "phone", "password", "login", "email"];
+		describe("with good elements", function() {
+			const tab = ["firstname", "lastname", "phone", "login", "email"];
+
 			tab.forEach(function(elem){
 				describe("property " + elem , function() {
 					beforeEach(function(){
-						this.propertyToUpdate = {};
 						this.propertyToUpdate[elem] = "toto";
+						this.propertyToUpdate.password= "123";
 					});
 
 					it("Update the propertie " + elem, function(){
 						return request(app)
-							.patch(url + "/" + this.userId1)
+							.put(memberUrl + "/" + this.userId1)
 							.send(this.propertyToUpdate)
 							.expect(201)
 							.then((res) => {
 								this.messageToRecieve = {
 									code : "201",
 									message : this.httpResponseMessage.success.successMessage,
-									_id : res.body._id
+									_id : String(this.userId1)
 								};
 								expect(res.body).to.deep.equal(this.messageToRecieve);
-								expect(res.body._id).to.be.a("string");
+								return userServices.userDbAccess.findById(this.userId1);
+							})
+							.then((value) => {
+								expect(value[elem]).to.equal(this.propertyToUpdate[elem]);
 								return;
 							});
 					});
 				});
 			});
+			it("update password", function() {
+				this.propertyToUpdate = {
+					password : "123",
+					newPassword : "123456"
+				};
+				return request(app)
+					.put(memberUrl + "/" + this.userId1)
+					.send(this.propertyToUpdate)
+					.expect(201)
+					.then((response) => {
+						this.messageToRecieve = {
+							code : "201",
+							message : this.httpResponseMessage.success.successMessage,
+							_id : String(this.userId1)
+						};
+						expect(response.body).to.deep.equal(this.messageToRecieve);
+						return userServices.userDbAccess.findById(this.userId1);
+					})
+					.then((value) => {
+						expect(value.password).to.be.not.equal(this.password);
+						expect(value.password).to.be.a("string");
+						return;
+					});
+
+			});
 		});
 
-		describe("actu moussa with bad elements", function() {
-			this.propertyToUpdate = {login : "momo111"};
-			console.log("++++++++++++++++++++", this.propertyToUpdate);
-			it("must not update user because of login presence", function() {
+		describe("with bad elements", function() {
+
+			it("with bad password", function() {
+				this.propertyToUpdate = {login : "newlogin", password : "badPassword"};
 				return request(app)
-					.put(url + "/" + this.userId1)
+					.put(memberUrl + "/" + this.userId1)
 					.send(this.propertyToUpdate)
-					// .expect(400)
 					.then((response) => {
 						this.messageToRecieve = {
 							code : 400,
-							message : this.httpResponseMessage.success.existenceMessage,
+							message : this.httpResponseMessage.failure.badPassword
+						};
+						expect(response.body).to.deep.equal(this.messageToRecieve);
+					});
+			});
+
+			it("must not update user because of login presence", function() {
+				this.propertyToUpdate = {login : "momo", password : "123"};
+				return request(app)
+					.put(memberUrl + "/" + this.userId1)
+					.send(this.propertyToUpdate)
+					.expect(400)
+					.then((response) => {
+						this.messageToRecieve = {
+							code : 400,
+							message : this.httpResponseMessage.failure.loginPresence,
+						};
+						expect(response.body).to.deep.equal(this.messageToRecieve);
+					});
+			});
+
+			it("must not update user because of email presence", function() {
+				this.propertyToUpdate = {email : "mmoussasow@gmail.com", password :"123"};
+				return request(app)
+					.put(memberUrl + "/" + this.userId1)
+					.send(this.propertyToUpdate)
+					.expect(400)
+					.then((response) => {
+						this.messageToRecieve = {
+							code : 400,
+							message : this.httpResponseMessage.failure.emailPresence,
 						};
 						expect(response.body).to.deep.equal(this.messageToRecieve);
 					});
@@ -293,6 +353,52 @@ describe("User tests", function () {
 
 		});
 
+
+	});
+
+	describe("GetKeyValidation", function() {
+		beforeEach(function(){
+			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
+			return userToSave1.save()
+				.then((user) => {
+					this.hashkey = user.hashkey;
+					this.userId1 = user._id;
+					return;
+				});
+		});
+
+		it("with a valid key for a found user", function() {
+			return request(app)
+				.get(url+"/"+this.userId1 + "/validation?key=" + this.hashkey)
+				.expect(201)
+				.then((response) => {
+					expect(response.body).to.deep.equal({
+						code : 201,
+						message : this.httpResponseMessage.failure.getKeyValidation.validation
+					});
+					return;
+				})
+				.then(() => {
+					return userServices.userDbAccess.findById(this.userId1);
+				})
+				.then((userToCheck) => {
+					expect(userToCheck.hashkey).to.be.undefined;
+					return;
+				});
+		});
+
+		it("withno found user", function() {
+			return request(app)
+				.get(url+"/"+this.userId1 + "/validation?key=" + "badkey")
+				.expect(400)
+				.then((response) => {
+					expect(response.body).to.deep.equal({
+						code : 400,
+						message : this.httpResponseMessage.failure.getKeyValidation.invalidAccount
+					});
+					return;
+				});
+		});
 
 	});
 });

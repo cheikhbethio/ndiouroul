@@ -91,7 +91,6 @@ exports.getLastPoemes = function (req, res, next) {
 	});
 };
 
-
 exports.getByLabel = function (req, res, next) {
 	var keyObj = req.param('key'),
 		valueObj = req.param('valu');
@@ -112,7 +111,6 @@ exports.getByLabel = function (req, res, next) {
 
 
 };
-
 
 exports.delete = function (req, res, next) {
 	var id = req.params.id;
@@ -171,7 +169,6 @@ exports.edit = function (req, res, next) {
 		}
 	});
 };
-
 
 
 /********************************************************

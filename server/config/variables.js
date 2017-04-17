@@ -67,6 +67,14 @@ const successMessage = "Succes de l'operation";
 const failureMessage = "Echec de l'operation";
 const existenceMessage  = "Ce document existe déjà";
 const invalidSchema = "json-schema invalid";
+const emailPresence = "cet email existe déja";
+const loginPresence = "ce login existe déja";
+const getKeyValidation = {
+	invalidAccount : "Désolé mais ce compte est invalide. Veillez vous réinscrire et faire la valivation dans les plus bref délais.",
+	validation : "Votre inscription a bien été pris en compte et sera validée par nos équipes dans les plus brefs délais. Merci et à très bientôt",
+};
+const badPassword = "invalide User or password";
+
 const httpMessage = {
 	response : {
 		success : {
@@ -75,7 +83,12 @@ const httpMessage = {
 		},
 		failure : {
 			failureMessage,
-			invalidSchema
+			invalidSchema,
+			existenceMessage,
+			emailPresence,
+			loginPresence,
+			getKeyValidation,
+			badPassword,
 		}
 	}
 };

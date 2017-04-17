@@ -1,2 +1,0 @@
-# pedwordpress
-PED WordPress
