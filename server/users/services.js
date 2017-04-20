@@ -122,8 +122,7 @@ function deleteUser(req, res){
 		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 	});
 }
-//if it is about email or login check if they exist before updating
-//for password regenerate a new password
+
 function updateUser(req, res){
 	let body = req.body;
 	let objectToCheck = {};
@@ -172,7 +171,6 @@ function updateUser(req, res){
 
 }
 
-
 function runUpdate(req, res, properties){
 	userDbAccess.findByIdAndUpdate(req.params.id, properties)
 		.then((value) => {
@@ -186,7 +184,6 @@ function runUpdate(req, res, properties){
 			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 		});
 }
-
 
 function getKeyValidation(req, res){
 	userDbAccess.findOne({ "hashkey": req.query.key })

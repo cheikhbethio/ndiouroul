@@ -2,7 +2,11 @@
 const poemServices = require("./services");
 
 module.exports = function (app) {
-	app.put("/api/writer/poem", poemServices.create);
+	app.post("/api/writer/poem", poemServices.create);
+	app.get("/api/public/poem/:id", poemServices.get);
+	app.get("/api/public/poem/", poemServices.getAll);
+	app.get("/api/public/last/poem", poemServices.getLastPoemes);
+	app.get("/api/public/bylabel/poem", poemServices.getByLabel);
 
   //
 	// app.post(apiRoute, job.isWritter, db_poeme.create);

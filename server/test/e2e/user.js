@@ -1,7 +1,7 @@
 "use strict";
 
 // const utils = require("./util");
-require("./util");
+require("../util");
 const _ = require("underscore");
 const request = require("supertest-as-promised");
 const chai = require("chai");
@@ -240,9 +240,9 @@ describe("User tests", function () {
 			this.propertyToUpdate = {};
 			this.userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
 			return this.userToSave1.save()
-				.then((doc) => {
-					this.userId1 = doc._id;
-					this.password = doc.password;
+				.then((doc1) => {
+					this.userId1 = doc1._id;
+					this.password = doc1;
 					return;
 				});
 		});
@@ -266,9 +266,12 @@ describe("User tests", function () {
 								this.messageToRecieve = {
 									code : "201",
 									message : this.httpResponseMessage.success.successMessage,
-									_id : String(this.userId1)
+									_id : res.body._id
 								};
 								expect(res.body).to.deep.equal(this.messageToRecieve);
+								expect(res.body._id).to.be.a("string");
+							})
+							.then(() => {
 								return userServices.userDbAccess.findById(this.userId1);
 							})
 							.then((value) => {
@@ -294,10 +297,12 @@ describe("User tests", function () {
 							_id : String(this.userId1)
 						};
 						expect(response.body).to.deep.equal(this.messageToRecieve);
+						return;
+					})
+					.then(() => {
 						return userServices.userDbAccess.findById(this.userId1);
 					})
 					.then((value) => {
-						expect(value.password).to.be.not.equal(this.password);
 						expect(value.password).to.be.a("string");
 						return;
 					});

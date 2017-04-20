@@ -17,7 +17,8 @@ function post(req, res, objectToSave){
 			};
 			res.status(201).json(messageToSending);
 		})
-		.catch(() => {
+		.catch((err) => {
+			console.log("++++++++++++",err);
 			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 		});
 }
@@ -94,8 +95,9 @@ function update(req, res,dbAccess){
 }
 
 function notDbAccessFound(dbAccess){
-	if (_.isUndefined(dbAccess))
+	if (_.isUndefined(dbAccess)){
 		throw "Pas de point d'entrée à la base";
+	}
 }
 
 

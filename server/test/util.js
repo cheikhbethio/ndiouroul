@@ -1,7 +1,8 @@
 "use strict";
 
-const config = require("../../config/database");
+const config = require("../config/database");
 const mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
 
 process.env.NODE_ENV = "test";
 
