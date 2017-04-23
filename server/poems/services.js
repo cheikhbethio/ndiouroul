@@ -101,7 +101,6 @@ function getByLabel(req, res) {
 	poemDbAccess.find(query)
 	.populate("author", "lastname firstname")
 	.then((poems) => {
-		// console.log("xxxxxxx", poems);
 		return res.status(201).json({
 			code : 201,
 			message : responseMsg.success.successMessage,
@@ -117,27 +116,25 @@ function deletePoem(req, res){
 	return dbServices.deleteDoc(req, res, poemDbAccess);
 }
 
-
-//dans le update  dbservice on utilise le req.body et on doit utilissateur
-//poemtoedit qui vient de jsonValidaor
-//il faut modifier le update dbservice relancer les tests de user et continuer
 function edit(req, res){
 	const editSchemaValidator = {
 		type :"object",
 		properties : {
-			anyOf: [{properties :{title: {type : "string"}}},
-				{properties :{content: {type : "string"}}},
-				{properties :{from: {type : "string"}}},
-				{properties :{denounced: {type : "string"}}},
-				{properties :{isPublic: {type : "string"}}},
-				{properties :{histo: {type : "string"}}},
-				{properties :{rubric: {type : "string"}}},
-				{properties :{tof: {type : "string"}}}]
-		}
+			title: {type : "string", required: false},
+			content: {type : "string", required: false},
+			from: {type : "string", required: false},
+			denounced: {type : "string", required: false},
+			isPublic: {type : "string", required: false},
+			histo: {type : "string", required: false},
+			rubric: {type : "string", required: false},
+			tof: {type : "string", required: false}
+		},
+		additionalProperties : false,
+		minProperties: 1
 	};
-	var poemToEdit =  metiers.isValidModel(req.body, editSchemaValidator);
-	if(poemToEdit){
-		return dbServices.update(res, res, poemDbAccess);
+	var isValidParam =  metiers.isValidModel(req.body, editSchemaValidator);
+	if(isValidParam.valid){
+		return dbServices.update(req, res, poemDbAccess, req.body);
 	}
 	return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 

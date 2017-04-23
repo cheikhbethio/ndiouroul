@@ -44,7 +44,7 @@ describe("User tests", function () {
 				.then((res) => {
 					this.createdUserReponse = res.body;
 					let  messageToRecieve = {
-						code : "201",
+						code : 201,
 						message : this.httpResponseMessage.success.successMessage,
 						_id : this.createdUserReponse._id
 					};

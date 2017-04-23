@@ -11,14 +11,13 @@ function post(req, res, objectToSave){
 	return objectToSave.save()
 		.then((doc) => {
 			let messageToSending = {
-				code : "201",
+				code : 201,
 				message : responseMsg.success.successMessage,
 				_id : doc._id
 			};
 			res.status(201).json(messageToSending);
 		})
-		.catch((err) => {
-			console.log("++++++++++++",err);
+		.catch(() => {
 			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 		});
 }
@@ -65,8 +64,8 @@ function deleteDoc(req, res,dbAccess){
 	}
 	return dbAccess.findByIdAndRemove(req.params.id)
 	.then((value) => {
-		res.status(200).json({
-			code : "200",
+		res.status(201).json({
+			code : 201,
 			message : responseMsg.success.successMessage,
 			_id : value ? value._id : null
 		});
@@ -76,15 +75,15 @@ function deleteDoc(req, res,dbAccess){
 	});
 }
 
-function update(req, res,dbAccess){
+function update(req, res,dbAccess, body){
 	notDbAccessFound(dbAccess);
 	if(!ObjectID.isValid(req.params.id)){
 		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage,500);
 	}
-	dbAccess.findByIdAndUpdate(req.params.id, req.body)
+	dbAccess.findByIdAndUpdate(req.params.id, body)
 	.then((value) => {
 		res.status(201).json({
-			code : "201",
+			code : 201,
 			message : responseMsg.success.successMessage,
 			_id : value ? value._id : null
 		});

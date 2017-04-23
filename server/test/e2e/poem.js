@@ -1,12 +1,10 @@
 "use strict";
 
 require("../util");
-const _ = require("underscore");
 const request = require("supertest-as-promised");
 const chai = require("chai");
 const expect = chai.expect;
 chai.should();
-// const userServices = require("../../users/services");
 const app = require("../../server");
 const myVar = require("../../config/variables");
 const writerUrl = "/api/writer/poem";
@@ -82,7 +80,7 @@ describe("Pomes tests", function() {
 
 	});
 
-	describe("xx get poems", function() {
+	describe("get poems", function() {
 		beforeEach(function() {
 			return request(app)
 				.post("/api/public/user")
@@ -182,4 +180,102 @@ describe("Pomes tests", function() {
 
 	});
 
+	describe("delete poem", function() {
+
+		it("which exist", function() {
+			this.userId = ObjectId("58f61d381d5e031c9c533e40");
+			return helper.poemCreator(app, this.userId, this.poemToCreate, 1)
+				.then((createdPoem) => {
+					return request(app)
+						.delete(writerUrl + "/" + createdPoem._id)
+						.expect(201)
+						.then((deletionResponse) => {
+							const expectedResponse= {
+								code : 201,
+								message : this.httpResponseMessage.success.successMessage,
+								_id : createdPoem._id
+							};
+							expect(deletionResponse.body).to.deep.equal(expectedResponse);
+							return request(app)
+								.get(publicUrl + "/" + createdPoem._id);
+						})
+						.then((checkDeletedPoem) => {
+							expect(checkDeletedPoem.body.result).to.be.null;
+							return;
+						});
+				});
+		});
+
+		it("which not exist", function() {
+			return request(app)
+				.delete(writerUrl + "/" +  ObjectId("58f61d381d5e031c9c533e40"))
+				.expect(201)
+				.then((deletionResponse) => {
+					const expectedResponse= {
+						code : 	201,
+						message : this.httpResponseMessage.success.successMessage,
+						_id : null
+					};
+					expect(deletionResponse.body).to.deep.equal(expectedResponse);
+					return;
+				});
+		});
+	});
+
+	describe("update poem", function() {
+		beforeEach(function() {
+			this.userId = ObjectId("58f61d381d5e031c9c533e40");
+			return helper.poemCreator(app, this.userId, this.poemToCreate, 1)
+			.then((createdPoem) => {
+				this.createdPoemId = createdPoem._id;
+			});
+		});
+
+		it("which exist", function() {
+			this.body = {content : "contentUpdated"};
+			return request(app)
+				.patch(writerUrl + "/" + this.createdPoemId)
+				.send(this.body)
+				.expect(201)
+				.then((updatingResponse1) => {
+					this.body = {title : "titleUpdated", tof : "tofUpdated"};
+					const expectedResponse= {
+						code : 201,
+						message : this.httpResponseMessage.success.successMessage,
+						_id : this.createdPoemId
+					};
+					expect(updatingResponse1.body).to.deep.equal(expectedResponse);
+					return request(app)
+						.patch(writerUrl + "/" + this.createdPoemId)
+						.send(this.body)
+						.expect(201);
+				})
+				.then(() => {
+					return request(app)
+					.get(publicUrl + "/" + this.createdPoemId);
+				})
+				.then((checkUpdatedPoem) => {
+					expect(checkUpdatedPoem.body.result.content).to.be.equal("contentUpdated");
+					expect(checkUpdatedPoem.body.result.title).to.be.equal("titleUpdated");
+					expect(checkUpdatedPoem.body.result.tof).to.be.equal("tofUpdated");
+					return;
+				});
+		});
+
+		it("with bad propertie", function() {
+			this.body = {badPropertie : "badPropertie"};
+			return request(app)
+				.patch(writerUrl + "/" + this.createdPoemId)
+				.send(this.body)
+				.expect(500)
+				.then((updateResponse) => {
+					expect(updateResponse.body).to.deep.equal({
+						code : 500,
+						message : this.httpResponseMessage.failure.failureMessage
+					});
+					return;
+				});
+		});
+
+	});
 });

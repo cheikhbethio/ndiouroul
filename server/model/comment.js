@@ -6,7 +6,6 @@ var poeme = require('./poeme.js');
 var Schema = mongoose.Schema;
 var _ = require("underscore");
 
-
 var CommentaireSchema = new mongoose.Schema({
 	id_author : {type : Schema.Types.ObjectId, ref:'user'},
 	id_poeme : {type : Schema.Types.ObjectId, ref:'poeme'},
@@ -26,7 +25,7 @@ exports.commentaire = db;
 exports.create = function(req,res,next){
 
 	var commentaireObj = {
-		id_author: req.body.id_author, 
+		id_author: req.body.id_author,
 		id_poeme: req.body.id_poeme,
 		date: Date.now(),
 		content:req.body.content,
@@ -47,10 +46,10 @@ exports.create = function(req,res,next){
 					res.send({message: "Le commentaire est bien enregistré", code: 0, result: doc});
 		        }
 			});
-		}else {	
+		}else {
 			res.send({message: "Impossible de sauver ce doc", code: 4});
 		}
-	});       
+	});
 };
 
 
@@ -76,7 +75,7 @@ exports.edit = function (req, res, next) {
 
 			fillParam(commentFound, obj);
 			commentFound.save(function (err, doc) {
-				if (err) {res.send(err)} 
+				if (err) {res.send(err)}
 				else if (!doc) {
 					res.send({message: "La Mise à jour impossible de ce doc a échoué :(Probleme serveur).", code: 1});
 				} else {
@@ -90,7 +89,7 @@ exports.edit = function (req, res, next) {
 
 
 //by poeme
-exports.get = function(req,res,next){   
+exports.get = function(req,res,next){
 	db.find({_id : req.params.id})
 		.populate('id_author', 'local.lastname local.firstname')
 		.populate('id_poeme', 'title')
@@ -106,7 +105,7 @@ exports.get = function(req,res,next){
 }
 
 //allComments
-exports.getAll = function(req,res,next){   
+exports.getAll = function(req,res,next){
 	db.find()
 		.populate('id_author', 'local.lastname local.firstname')
 		.populate('id_poeme', 'title')
@@ -123,7 +122,7 @@ exports.getAll = function(req,res,next){
 		});
 }
 
-exports.getNbcomment = function(req,res,next){   
+exports.getNbcomment = function(req,res,next){
 	db.find({id_author : req.params.id} ,(function(err,result){
 		   	if(err){
 		       	return next(err);
@@ -144,7 +143,7 @@ exports.delete =function(req, res, next){
         	res.send({message: "Le poeme a bien été suprimé", code: 0, result: doc.remove()});
         }
     });
-};  
+};
 
 exports.getLast = function(req,res,next){
 	db.find({$query:{} ,$orderby:{date: -1}})
@@ -157,7 +156,7 @@ exports.getLast = function(req,res,next){
 	      	  		res.send({message: "requete reussie", code: 0, result: doc});
        			}
 	      });
-};  
+};
 
 //recherche par rubric
 exports.getByLabel = function (req, res, next) {
@@ -176,7 +175,7 @@ exports.getByLabel = function (req, res, next) {
 				if (err){
 					res.send({message: "Ereur interne du serveur", code: 2});
 				} else if (!doc.length) {
-					res.send({message: "ces documents sont introuvables", code: 1});} 
+					res.send({message: "ces documents sont introuvables", code: 1});}
 				else {
 					res.send({message: "ok", code: 0, result: doc});
 				}
@@ -194,7 +193,7 @@ function fillParam(objTo, objFrom) {
 	_.each(objFrom, function (value, key) {
 		if (value || key === 'denounced') {
 			objTo[key] = value;
-		} 
+		}
 	});
 }
 

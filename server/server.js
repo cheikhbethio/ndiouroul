@@ -73,4 +73,5 @@ app.listen(port, function () {
 
 require("./users/routes.js")(app);
 require("./poems/routes.js")(app);
+require("./comments/routes.js")(app);
 module.exports = app;

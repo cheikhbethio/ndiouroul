@@ -8,7 +8,7 @@ module.exports = function (app, passport) {
 
 	app.get('/api/session', connectionModel.sessionMiddleware);
 
-	app.get('/api/validation/signUp/:id', db_user.getKeyValidation);
+	app.get('/api/validation/signUp/:id', db_user.getKeyValidation); //done
 
 	app.get('/api/logout', connectionModel.loginMiddleware);
 
