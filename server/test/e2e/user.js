@@ -1,6 +1,5 @@
 "use strict";
 
-// const utils = require("./util");
 require("../util");
 const _ = require("underscore");
 const request = require("supertest-as-promised");
@@ -242,7 +241,6 @@ describe("User tests", function () {
 			return this.userToSave1.save()
 				.then((doc1) => {
 					this.userId1 = doc1._id;
-					this.password = doc1;
 					return;
 				});
 		});
@@ -257,7 +255,7 @@ describe("User tests", function () {
 						this.propertyToUpdate.password= "123";
 					});
 
-					it("Update the propertie " + elem, function(){
+					it("Update the property " + elem, function(){
 						return request(app)
 							.put(memberUrl + "/" + this.userId1)
 							.send(this.propertyToUpdate)

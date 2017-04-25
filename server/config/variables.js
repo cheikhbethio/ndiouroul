@@ -74,7 +74,7 @@ const getKeyValidation = {
 	validation : "Votre inscription a bien été pris en compte et sera validée par nos équipes dans les plus brefs délais. Merci et à très bientôt",
 };
 const badPassword = "invalide User or password";
-
+const docNotFound = "Opération impossible, le document est introuvable"
 const httpMessage = {
 	response : {
 		success : {
@@ -89,6 +89,7 @@ const httpMessage = {
 			loginPresence,
 			getKeyValidation,
 			badPassword,
+			docNotFound
 		}
 	}
 };

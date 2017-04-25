@@ -11,6 +11,7 @@ Peom =>
 
 general =>
       chacun doit pouvoir supprimer uniquement ses propres poemes.
+      dans le update de databaseService replcer le _id par result (uniforme)
 
 
 coherence

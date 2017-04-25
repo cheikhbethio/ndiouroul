@@ -5,8 +5,9 @@ chai.should();
 const expect = chai.expect;
 const myVar = require("../config/variables");
 const request = require("supertest-as-promised");
+const userServices = require("../users/services");
 const _ = require("underscore");
-var httpResponseMessage = myVar.httpMessage.response;
+const httpResponseMessage = myVar.httpMessage.response;
 
 let  messageToRecieve;
 
@@ -103,9 +104,6 @@ function commentCreator(app, user, poemToCreate, commentToCreate, numberToCreate
 				.send(commentToCreate)
 				.then((createdCommentResponse) => {
 					result.commentId = createdCommentResponse.body._id;
-					// if (numberToCreate === 1) {
-					// 	return resolve(result);
-					// }
 					if (cursor === numberToCreate) {
 						return resolve(result);
 					}
@@ -134,7 +132,24 @@ function compareTwoComments(gettedComment, content, title, firstname, lastname){
 	expect(gettedComment.poem.title).to.be.equal(title);
 }
 
+function createUser(userParams){
+	const userToSave = new userServices.userDbAccess(userServices.fillUserModel(userParams));
+	return userToSave.save()
+		.then((savedUser) => {
+			return savedUser;
+		});
+}
+
+function getUser(id){
+	return userServices.userDbAccess.findById(id)
+		.then((gettedUser) => {
+			return gettedUser;
+		});
+}
+
 exports = _.extend(exports, {
+	getUser,
+	createUser,
 	failureNotExisting,
 	compareTwoComments,
 	commentCreator,
