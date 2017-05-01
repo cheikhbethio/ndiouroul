@@ -1,57 +1,52 @@
 "use strict";
 
 require("../util");
-const _ = require("underscore");
 const request = require("supertest-as-promised");
 const chai = require("chai");
 chai.should();
 const expect = chai.expect;
 const helper = require("../helper");
 const app = require("../../server");
-const userServices = require("../../users/services");
 const myVar = require("../../config/variables");
 const passwordRegenerateUrl = "/api/passwordRegenerate";
-// const url = "/api/public/user";
-// const adminUrl = "/api/admin/user";
-// const memberUrl = "/api/member/user";
-// const userServices = require("../../users/services");
+const loginUrl = "/api/login";
+// const logoutUrl = "/api/logout";
 
+xdescribe("connection", function() {
 
-describe("connection", function() {
-	before(function() {
-
-	});
 	beforeEach(function() {
 		this.httpResponseMessage = myVar.httpMessage.response;
 		this.messageToRecieve ;
+		this.password = "12345";
 		this.user = {
 			firstname :  "moussa",
 			lastname : "sow",
-			password : "123",
-			login : "momo",
+			password : this.password,
+			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
-		this.body;
+		this.body = {};
+		return helper.createUser(this.user)
+			.then((createdUser) => {
+				this.user = createdUser;
+				return;
+			});
 	});
 
 	describe("updatePassWord", function() {
 
 		it("with a found user", function() {
-			var createUser;
-			return helper.createUser(this.user)
-				.then((helperResponseCreation) => {
-					createUser = helperResponseCreation;
-					this.body = {email : this.user.email};
-					return request(app)
-						.post(passwordRegenerateUrl)
-						.send(this.body)
-						.expect(201);
-				})
+			this.body = {email : this.user.email};
+			return request(app)
+				.post(passwordRegenerateUrl)
+				.send(this.body)
+				.expect(201)
 				.then((updatedUserResponse) => {
 					return helper.getUser(updatedUserResponse.body._id);
 				})
 				.then((gettedUser) => {
-					expect(createUser.password).to.be.not.equal(gettedUser.password);
+					expect(this.user.password).to.be.not.equal(gettedUser.password);
+					expect(this.user.password).to.be.not.equal(gettedUser.password);
 					return;
 				});
 		});
@@ -70,6 +65,31 @@ describe("connection", function() {
 				});
 		});
 
+	});
+
+	describe("authenticate -- loginMiddleware", function() {
+		it("login with valid password and email", function() {
+			this.body = {	login : this.user.login,	password : this.password };
+			console.log("----", this.body);
+
+			return request(app)
+			.post(loginUrl)
+			.send(this.body)
+			.expect(201)
+			.then((response) => {
+				console.log("+++++", response.body);
+				return;
+			});
+
+		});
+	});
+
+	describe("logoutMiddleware", function() {
+		// body...
+	});
+
+	describe("sessionMiddleware", function() {
+		// body...
 	});
 
 });

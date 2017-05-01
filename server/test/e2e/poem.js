@@ -18,7 +18,7 @@ const ObjectId = require("mongodb").ObjectID;
 describe("Pomes tests", function() {
 	beforeEach(function(){
 		this.httpResponseMessage = myVar.httpMessage.response;
-		this.poemToCreate = {
+		this.poemToCreate1 = {
 			title: "title",
 			content: "content",
 			author: ObjectId("58f61d381d5e031c9c533e40"),
@@ -26,7 +26,7 @@ describe("Pomes tests", function() {
 			tof:"to",
 			from: "from"
 		};
-		this.poemToCreate1 = {
+		this.poemToCreate2 = {
 			title: "title1",
 			content: "content1",
 			author: ObjectId("58f61d381d5e031c9c533e43"),
@@ -37,10 +37,18 @@ describe("Pomes tests", function() {
 		this.user = {
 			firstname :  "moussa",
 			lastname : "sow",
-			password : "123",
-			login : "momo",
+			password : "12345",
+			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
+
+		return helper.createUser(this.user)
+			.then((createdUser) => {
+				this.user = createdUser;
+				this.poemToCreate1.author = String(createdUser._id);
+				this.poemToCreate2.author = String(createdUser._id);
+				return;
+			});
 
 	});
 
@@ -48,7 +56,7 @@ describe("Pomes tests", function() {
 		it("create poem", function() {
 			return request(app)
 				.post(writerUrl)
-				.send(this.poemToCreate)
+				.send(this.poemToCreate1)
 				.expect(201)
 				.then((response) => {
 					return helper.successCretation(response.body);
@@ -56,10 +64,10 @@ describe("Pomes tests", function() {
 		});
 
 		it("must not creat poem becouse of bad argument", function() {
-			this.poemToCreate.badPropertie = "bad propertie";
+			this.poemToCreate1.badPropertie = "bad propertie";
 			return request(app)
 				.post(writerUrl)
-				.send(this.poemToCreate)
+				.send(this.poemToCreate1)
 				.expect(500)
 				.then((response) => {
 					return helper.failureCreation(response.body);
@@ -68,10 +76,10 @@ describe("Pomes tests", function() {
 
 
 		it("must not creat poem becouse missing a required property", function() {
-			delete  this.poemToCreate.title;
+			delete  this.poemToCreate1.title;
 			return request(app)
 				.post(writerUrl)
-				.send(this.poemToCreate)
+				.send(this.poemToCreate1)
 				.expect(500)
 				.then((response) => {
 					return helper.failureCreation(response.body);
@@ -82,35 +90,25 @@ describe("Pomes tests", function() {
 
 	describe("get poems", function() {
 		beforeEach(function() {
-			return request(app)
-				.post("/api/public/user")
-				.send(this.user)
-				.then((createdUserResponse) => {
-					this.userId = createdUserResponse.body._id;
-					this.poemToCreate1.author = createdUserResponse.body._id;
-					return request(app)
-						.post(writerUrl)
-						.send(this.poemToCreate1);
+			return helper.createPoem(this.poemToCreate1, 1)
+				.then((poemListe1) => {
+					this.idPoem1= poemListe1[0]._id;
+					return helper.createPoem(this.poemToCreate2, 1);
 				})
-				.then((secondCreatedPoem) => {
-					this.poemId1 = secondCreatedPoem.body._id;
-					this.poemToCreate.author = this.userId;
-					return request(app)
-						.post(writerUrl)
-						.send(this.poemToCreate)
-						.then((createdPoemResponse) => {
-							this.poemId = createdPoemResponse.body._id;
-						});
+				.then((poemListe2) => {
+					this.idPoem2= poemListe2[0]._id;
+					return;
 				});
+
 		});
 
 		it("get by good _id", function() {
 			return request(app)
-				.get(publicUrl + "/" + this.poemId)
+				.get(publicUrl + "/" + this.idPoem1)
 				.expect(200)
 				.then((returnedPoemresponse) => {
 					const returnedPoem = returnedPoemresponse.body.result;
-					helper.compareTwoPoems(returnedPoem, this.userId, this.user.firstname, this.user.lastname,this.poemToCreate);
+					helper.compareTwoPoems(returnedPoem, String(this.user._id), this.user.firstname, this.user.lastname,this.poemToCreate1);
 					return;
 				});
 		});
@@ -129,34 +127,35 @@ describe("Pomes tests", function() {
 		});
 
 		it("getAll", function() {
-			return helper.poemCreator(app, this.userId, this.poemToCreate, 10)
-				.then(() => {
-					return request(app)
-						.get(publicUrl)
-						.expect(201)
-						.then((poemListResponse) => {
-							const poemsList = poemListResponse.body.result;
-							expect(poemListResponse.body.code).to.be.equal(201);
-							expect(poemListResponse.body.message).to.be.equal(this.httpResponseMessage.success.successMessage);
-							expect(poemsList.length).to.be.at.least(10);
-							helper.compareTwoPoems(poemsList[0], this.userId, this.user.firstname, this.user.lastname,this.poemToCreate1);
-							return;
-						});
+			return request(app)
+				.get(publicUrl)
+				.expect(201)
+				.then((poemListResponse) => {
+					const poemsList = poemListResponse.body.result;
+					expect(poemListResponse.body.code).to.be.equal(201);
+					expect(poemListResponse.body.message).to.be.equal(this.httpResponseMessage.success.successMessage);
+					expect(poemsList.length).to.be.equal(2);
+					helper.compareTwoPoems(poemsList[0], String(this.user._id), this.user.firstname, this.user.lastname,this.poemToCreate1);
+					return;
 				});
 		});
 
 		it("getLastPoemes", function() {
-			return helper.poemCreator(app, this.userId, this.poemToCreate, 10)
+			return helper.createPoem(this.poemToCreate1, 10)
 				.then(() => {
 					return request(app)
 						.get(lastPoeme)
 						.expect(201)
 						.then((poemListResponse) => {
 							const poemsList = poemListResponse.body.result;
+							// var datesList = _.reduce(poemsList, (memo, elem) => {
+							// 	memo.push([elem.created_at ,elem._id]);
+							// 	return memo;
+							// }, []);
 							expect(poemListResponse.body.code).to.be.equal(201);
 							expect(poemListResponse.body.message).to.be.equal(this.httpResponseMessage.success.successMessage);
 							expect(poemsList.length).to.be.equal(10);
-							helper.compareTwoPoems(poemsList[0], this.userId, this.user.firstname, this.user.lastname,this.poemToCreate1);
+							helper.compareTwoPoems(poemsList[0], String(this.user._id), this.user.firstname, this.user.lastname,this.poemToCreate1);
 							return;
 						});
 				});
@@ -172,7 +171,7 @@ describe("Pomes tests", function() {
 					const poem = poemResponse.body.result[0];
 					expect(poemResponse.body.code).to.be.equal(201);
 					expect(poemResponse.body.message).to.be.equal(this.httpResponseMessage.success.successMessage);
-					helper.compareTwoPoems(poem, this.userId, this.user.firstname, this.user.lastname,this.poemToCreate);
+					helper.compareTwoPoems(poem, String(this.user._id), this.user.firstname, this.user.lastname,this.poemToCreate1);
 					return;
 				});
 		});
@@ -184,8 +183,9 @@ describe("Pomes tests", function() {
 
 		it("which exist", function() {
 			this.userId = ObjectId("58f61d381d5e031c9c533e40");
-			return helper.poemCreator(app, this.userId, this.poemToCreate, 1)
-				.then((createdPoem) => {
+			return helper.createPoem(this.poemToCreate1, 1)
+				.then((createdPoemsList) => {
+					const createdPoem = createdPoemsList[0];
 					return request(app)
 						.delete(writerUrl + "/" + createdPoem._id)
 						.expect(201)
@@ -193,7 +193,7 @@ describe("Pomes tests", function() {
 							const expectedResponse= {
 								code : 201,
 								message : this.httpResponseMessage.success.successMessage,
-								_id : createdPoem._id
+								_id : String(createdPoem._id)
 							};
 							expect(deletionResponse.body).to.deep.equal(expectedResponse);
 							return request(app)
@@ -225,9 +225,9 @@ describe("Pomes tests", function() {
 	describe("update poem", function() {
 		beforeEach(function() {
 			this.userId = ObjectId("58f61d381d5e031c9c533e40");
-			return helper.poemCreator(app, this.userId, this.poemToCreate, 1)
-			.then((createdPoem) => {
-				this.createdPoemId = createdPoem._id;
+			return helper.createPoem(this.poemToCreate1, 1)
+			.then((createdPoemsList) => {
+				this.createdPoemId = createdPoemsList[0]._id;
 			});
 		});
 
@@ -242,7 +242,7 @@ describe("Pomes tests", function() {
 					const expectedResponse= {
 						code : 201,
 						message : this.httpResponseMessage.success.successMessage,
-						_id : this.createdPoemId
+						_id : String(this.createdPoemId)
 					};
 					expect(updatingResponse1.body).to.deep.equal(expectedResponse);
 					return request(app)

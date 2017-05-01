@@ -1,8 +1,8 @@
 // load all the things we need
-var LocalStrategy = require('passport-local').Strategy;
+var LocalStrategy = require("passport-local").Strategy;
 
 // load up the user model
-var User = require('../model/user').user;
+var User = require("../model/user").user;
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {
@@ -21,20 +21,20 @@ module.exports = function (passport) {
 	});
 
 
-	passport.use('local-signup', new LocalStrategy({
-		usernameField: 'login',
-		passwordField: 'password',
+	passport.use("local-signup", new LocalStrategy({
+		usernameField: "login",
+		passwordField: "password",
 		passReqToCallback: true
 	},
 		function (req, login, password, done) {
 
 			process.nextTick(function () {
 
-				User.findOne({'local.login': req.body.login}, function (err, user) {
+				User.findOne({"local.login": req.body.login}, function (err, user) {
 					if (err)
 						return done(err);
 					if (user) {
-						return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+						return done(null, false, req.flash("signupMessage", "That email is already taken."));
 					} else {
 						var newUser = new User();
 
@@ -55,14 +55,14 @@ module.exports = function (passport) {
 			});
 		}));
 
-	passport.use('local-login', new LocalStrategy({
+	passport.use("local-login", new LocalStrategy({
 		// by default, local strategy uses username and password, we will override with email
-		usernameField: 'username',
-		passwordField: 'password',
+		usernameField: "username",
+		passwordField: "password",
 		passReqToCallback: true // allows us to pass back the entire request to the callback
 	},
 		function (req, username, password, done) {
-			User.findOne({'local.login': username}, function (err, user) {
+			User.findOne({"local.login": username}, function (err, user) {
 
 				if (err)
 					return done(err);

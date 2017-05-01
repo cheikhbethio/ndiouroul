@@ -44,6 +44,7 @@ afterEach(function (done) {
 	for (var i in mongoose.connection.collections) {
 		mongoose.connection.collections[i].remove();
 	}
+	mongoose.connection.removeAllListeners();
 	mongoose.disconnect();
 	return done();
 });

@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
-const passport = require("passport");
+// const passport = require("passport");
 const mayVar = require("./config/variables");
 const logger = require("log");
 const print = new logger("info");
@@ -21,6 +21,9 @@ const port = process.env.PORT || 8000;
 
 mongoose.Promise = global.Promise;
 mongoose.connect(configDB.db.test);
+const EventEmitter = require("events");
+const emitter = new EventEmitter();
+emitter.setMaxListeners(200);
 
 // on recup les variables
 
@@ -28,7 +31,7 @@ mongoose.connect(configDB.db.test);
 app.use(express.static(path.join(application_root, "../client")));
 
 app.set("trust proxy", 1); // trust first proxy
-require("./config/passport.js")(passport);
+// require("./config/passport.js")(passport);
 app.use(morgan("dev"));
 app.use(methodOverride());
 app.use(cookieParser());
@@ -41,8 +44,8 @@ app.use(session({
 	expires: new Date(Date.now() + mayVar.session.session_duration),
 	cookie: {maxAge: mayVar.session.session_duration}
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 app.use(flash());
 
 app.use(function manageSession(req, res, next) {
@@ -64,14 +67,9 @@ app.listen(port, function () {
 	print.info("node server on port : " + port);
 	print.info("application_root : " + application_root);
 });
-//
-// require("./route/user.js")(app);
-// require("./route/connection.js")(app, passport);
-// require("./route/poeme.js")(app);
-// require("./route/comment.js")(app);
-// require("./route/test.js")(app);
 
-require("./users/routes.js")(app);
+require("./users/userRoutes.js")(app);
+require("./users/connectionRoutes.js")(app);
 require("./poems/routes.js")(app);
 require("./comments/routes.js")(app);
 module.exports = app;

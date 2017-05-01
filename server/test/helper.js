@@ -4,8 +4,9 @@ const chai = require("chai");
 chai.should();
 const expect = chai.expect;
 const myVar = require("../config/variables");
-const request = require("supertest-as-promised");
 const userServices = require("../users/services");
+const poemsServices = require("../poems/services");
+const commentServices = require("../comments/services");
 const _ = require("underscore");
 const httpResponseMessage = myVar.httpMessage.response;
 
@@ -56,67 +57,6 @@ function compareTwoPoems(returnedPoem, userId, firstname, lastname, poemToCreate
 	expect(returnedPoem.histo).to.be.equal(false);
 }
 
-function poemCreator(app, userId, poemToCreate, numberToCreate) {
-	return  new Promise(function(resolve, reject) {
-		poemToCreate.author = userId;
-		for (var cursor = 0; cursor < numberToCreate; cursor++) {
-			request(app)
-			.post("/api/writer/poem")
-			.send(poemToCreate)
-			.then((createdPoem) => {
-				if (numberToCreate === 1) {
-					return resolve(createdPoem.body);
-				}
-				if (cursor === numberToCreate) {
-					return resolve();
-				}
-			})
-			.catch(() => {
-				return reject();
-			});
-		}
-	});
-}
-
-//a revoir pour la boucle des Promise
-function commentCreator(app, user, poemToCreate, commentToCreate, numberToCreate){
-	const result = {};
-	result.idCommentList = [];
-	return new Promise(function(resolve, reject) {
-		return request(app)
-		.post("/api/public/user")
-		.send(user)
-		.then((createdUserResponse) => {
-			result.userId = createdUserResponse.body._id;
-			result.idCommentList.push(createdUserResponse.body._id);
-			poemToCreate.author = createdUserResponse.body._id;
-			return request(app)
-				.post("/api/writer/poem")
-				.send(poemToCreate);
-		})
-		.then((createdPoem) => {
-			result.poemId = createdPoem.body._id;
-			commentToCreate.author = result.userId;
-			commentToCreate.poem =  createdPoem.body._id;
-			for (var cursor = 0; cursor < numberToCreate; cursor++) {
-				request(app)
-				.post("/api/member/comment")
-				.send(commentToCreate)
-				.then((createdCommentResponse) => {
-					result.commentId = createdCommentResponse.body._id;
-					if (cursor === numberToCreate) {
-						return resolve(result);
-					}
-				})
-				.catch(() => {
-					return reject();
-				});
-			}
-		});
-
-	});
-}
-
 function compareTwoComments(gettedComment, content, title, firstname, lastname){
 	expect(gettedComment).to.have.property("_id");
 	expect(gettedComment._id).to.be.a("string");
@@ -132,12 +72,51 @@ function compareTwoComments(gettedComment, content, title, firstname, lastname){
 	expect(gettedComment.poem.title).to.be.equal(title);
 }
 
+function commentCreator(app, commentsParams, numberToCreate){
+	const result = [];
+	return new Promise(function(resolve, reject) {
+		for (var cursor = 0; cursor < numberToCreate; cursor++) {
+			var commentToSave = new commentServices.commentDbAccess(commentServices.fillCommentModel(commentsParams));
+			commentToSave.save()
+				.then((savedComment) => {
+					result.push(savedComment);
+					if (cursor === numberToCreate) {
+						return resolve(result);
+					}
+				})
+				.catch(() => {
+					return reject();
+				});
+		}
+	});
+}
+
 function createUser(userParams){
 	const userToSave = new userServices.userDbAccess(userServices.fillUserModel(userParams));
 	return userToSave.save()
-		.then((savedUser) => {
-			return savedUser;
+		.then((savedUser) =>  {
+			console.log("*****", savedUser);
+			return  savedUser
 		});
+}
+
+function createPoem(poemParams, numberToCreate){
+	const result = [];
+	return new Promise(function(resolve, reject) {
+		for (var cursor = 0; cursor < numberToCreate; cursor++) {
+			var poemToSave = new poemsServices.poemDbAccess(poemsServices.fillPoemModel(poemParams));
+			poemToSave.save()
+			.then((savedPoem) => {
+				result.push(savedPoem);
+				if (cursor === numberToCreate) {
+					return resolve(result);
+				}
+			})
+			.catch(() => {
+				return reject();
+			});
+		}
+	});
 }
 
 function getUser(id){
@@ -148,14 +127,14 @@ function getUser(id){
 }
 
 exports = _.extend(exports, {
+	createPoem,
 	getUser,
 	createUser,
 	failureNotExisting,
 	compareTwoComments,
 	commentCreator,
-	poemCreator,
 	compareTwoPoems,
 	successCretation,
 	failureCreation,
-	failureGetting
+	failureGetting,
 });

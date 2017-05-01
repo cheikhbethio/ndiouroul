@@ -26,10 +26,10 @@ const userValidatorSchema= {
 	type: "object",
 	properties : {
 		email: {type : "string", required :  true},
-		password: {type : "string", required :  true},
+		password: {type : "string", required :  true, minLength: 5 , maxLength: 100},
 		firstname: {type : "string", required :  true},
 		lastname: {type : "string", required :  true},
-		login: {type : "string", required :  true},
+		login: {type : "string", required :  true, minLength: 5 , maxLength : 30},
 		right: {type : "string", required :  true},
 		idPic: {type : "string"},
 		phone: {type : "string"},
@@ -91,7 +91,7 @@ function createUser(req, res){
 				return metiers.quitWithFailure(req, res, responseMsg.success.existenceMessage, 400);
 			}
 			const sentText = myVar.forMail.signUp.text + myVar.myUrl.princiaplURL + myVar.myUrl.emailValidation +
-					filledUserObject.hashed;
+					filledUserObject.hashkey;
 			theMailer.emailSender(filledUserObject.email, myVar.forMail.signUp.subject, sentText);
 			return dbServices.post(req, res, userToCreate);
 		});

@@ -12,23 +12,26 @@ const url = "/api/public/user";
 const adminUrl = "/api/admin/user";
 const memberUrl = "/api/member/user";
 const userServices = require("../../users/services");
+const helper = require("../helper");
 
 describe("User tests", function () {
 	beforeEach(function() {
 		this.httpResponseMessage = myVar.httpMessage.response;
 		this.messageToRecieve ;
+		this.firstPassword = "firstPassword";
+		this.secondPassword = "secondPassword";
 		this.user1 = {
 			firstname :  "moussa",
 			lastname : "sow",
-			password : "123",
-			login : "momo",
+			password : this.firstPassword,
+			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
 		this.user2 = {
 			firstname :  "moussa1",
 			lastname : "sow2",
-			password : "1232",
-			login : "momo2",
+			password : this.secondPassword,
+			login : "baymoussa2",
 			email : "mmoussasow2@gmail.com"
 		};
 	});
@@ -117,15 +120,13 @@ describe("User tests", function () {
 
 		beforeEach(function() {
 			this.usersListLenght = 2;
-			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
-			const userToSave2 = new userServices.userDbAccess(userServices.fillUserModel(this.user2));
-			return userToSave1.save()
-				.then((doc1) => {
-					this.userId1 = doc1._id;
-					return userToSave2.save();
+			return helper.createUser(this.user1)
+				.then((user1) => {
+					this.userId1 = user1._id;
+					return helper.createUser(this.user2);
 				})
-				.then((doc2) => {
-					this.userId2 = doc2._id;
+				.then((user2) => {
+					this.userId2 = user2._id;
 					return;
 				});
 		});
@@ -187,10 +188,9 @@ describe("User tests", function () {
 
 	describe("Deletion", function() {
 		beforeEach(function() {
-			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
-			return userToSave1.save()
-				.then((doc1) => {
-					this.userId1 = doc1._id;
+			return helper.createUser(this.user1)
+				.then((user1) => {
+					this.userId1 = user1._id;
 					return;
 				});
 		});
@@ -237,10 +237,9 @@ describe("User tests", function () {
 	describe("Update user", function() {
 		beforeEach(function() {
 			this.propertyToUpdate = {};
-			this.userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
-			return this.userToSave1.save()
-				.then((doc1) => {
-					this.userId1 = doc1._id;
+			return helper.createUser(this.user1)
+				.then((user1) => {
+					this.userId1 = user1._id;
 					return;
 				});
 		});
@@ -252,7 +251,7 @@ describe("User tests", function () {
 				describe("property " + elem , function() {
 					beforeEach(function(){
 						this.propertyToUpdate[elem] = "toto";
-						this.propertyToUpdate.password= "123";
+						this.propertyToUpdate.password= this.firstPassword;
 					});
 
 					it("Update the property " + elem, function(){
@@ -281,7 +280,7 @@ describe("User tests", function () {
 			});
 			it("update password", function() {
 				this.propertyToUpdate = {
-					password : "123",
+					password : this.firstPassword,
 					newPassword : "123456"
 				};
 				return request(app)
@@ -325,7 +324,7 @@ describe("User tests", function () {
 			});
 
 			it("must not update user because of login presence", function() {
-				this.propertyToUpdate = {login : "momo", password : "123"};
+				this.propertyToUpdate = {login : "baymoussa", password : this.firstPassword};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
 					.send(this.propertyToUpdate)
@@ -340,7 +339,7 @@ describe("User tests", function () {
 			});
 
 			it("must not update user because of email presence", function() {
-				this.propertyToUpdate = {email : "mmoussasow@gmail.com", password :"123"};
+				this.propertyToUpdate = {email : "mmoussasow@gmail.com", password :this.firstPassword};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
 					.send(this.propertyToUpdate)
@@ -361,11 +360,10 @@ describe("User tests", function () {
 
 	describe("GetKeyValidation", function() {
 		beforeEach(function(){
-			const userToSave1 = new userServices.userDbAccess(userServices.fillUserModel(this.user1));
-			return userToSave1.save()
-				.then((user) => {
-					this.hashkey = user.hashkey;
-					this.userId1 = user._id;
+			return helper.createUser(this.user1)
+				.then((user1) => {
+					this.hashkey = user1.hashkey;
+					this.userId1 = user1._id;
 					return;
 				});
 		});
@@ -404,4 +402,5 @@ describe("User tests", function () {
 		});
 
 	});
+
 });

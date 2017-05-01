@@ -1,5 +1,4 @@
 const userServices = require("./services");
-const connectionServices = require("./connectionServices");
 
 module.exports = function (app) {
 
@@ -9,7 +8,5 @@ module.exports = function (app) {
 	app.get("/api/member/user/:id", userServices.findUser);
 	app.get("/api/admin/user", userServices.getAll);
 	app.delete("/api/admin/user/:id", userServices.deleteUser);
-
-	app.post("/api/passwordRegenerate", connectionServices.updatePassWord);
 
 };

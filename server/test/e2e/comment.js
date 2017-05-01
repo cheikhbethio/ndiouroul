@@ -22,7 +22,7 @@ describe("Comments tests", function() {
 			poem :  ObjectId("58f61d381d5e031c9c533e12"),
 			content : "commentcontent"
 		};
-		this.poemToCreate = {
+		this.poem = {
 			title: "title",
 			content: "content",
 			author: ObjectId("58f61d381d5e031c9c533e40"),
@@ -33,10 +33,22 @@ describe("Comments tests", function() {
 		this.user = {
 			firstname :  "moussa",
 			lastname : "sow",
-			password : "123",
-			login : "momo",
+			password : "12345",
+			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
+		return helper.createUser(this.user)
+			.then((createdUser) => {
+				this.commentToCreate.author = String(createdUser._id);
+				this.user = createdUser;
+				this.poem.author = String(createdUser._id);
+				return helper.createPoem(this.poem, 1);
+			})
+			.then((createdPoemsList) => {
+				this.commentToCreate.poem = String(createdPoemsList[0]._id);
+				this.poem = createdPoemsList[0];
+				return;
+			});
 	});
 
 	describe("creation", function() {
@@ -76,10 +88,11 @@ describe("Comments tests", function() {
 	describe("get a comment", function() {
 
 		it("get by id", function() {
-			return helper.commentCreator(app, this.user, this.poemToCreate, this.commentToCreate, 1)
-				.then((resultConstructor) => {
+			// return helper.commentCreator(app, this.user, this.poemToCreate, this.commentToCreate, 1)
+			return helper.commentCreator(app, this.commentToCreate, 1)
+				.then((createdCommentsList) => {
 					return request(app)
-						.get(adminUrl + "/" + resultConstructor.commentId)
+						.get(adminUrl + "/" + createdCommentsList[0]._id)
 						.expect(200);
 				})
 				.then((gettedCommentResponse) => {
@@ -87,7 +100,7 @@ describe("Comments tests", function() {
 					expect(gettedCommentResponse.body.message).to.be.equal(this.httpResponseMessage.success.successMessage);
 					const gettedComment = gettedCommentResponse.body.result;
 					helper.compareTwoComments(gettedComment, this.commentToCreate.content,
-						this.poemToCreate.title, this.user.firstname, this.user.lastname);
+						this.poem.title, this.user.firstname, this.user.lastname);
 					return;
 				});
 		});
@@ -113,10 +126,8 @@ describe("Comments tests", function() {
 
 	describe("get multiple or by label", function() {
 		beforeEach(function() {
-			return helper.commentCreator(app, this.user, this.poemToCreate, this.commentToCreate, 2)
-				.then((comments) => {
-					this.userId = comments.userId;
-					this.poemId = comments.poemId;
+			return helper.commentCreator(app, this.commentToCreate, 2)
+				.then(() => {
 					return;
 				});
 		});
@@ -135,7 +146,7 @@ describe("Comments tests", function() {
 					expect(allPoems).to.have.lengthOf(2);
 					allPoems.forEach(function(elem){
 						helper.compareTwoComments(elem, _this.commentToCreate.content,
-							_this.poemToCreate.title, _this.user.firstname, _this.user.lastname);
+							_this.poem.title, _this.user.firstname, _this.user.lastname);
 					});
 					return;
 				});
@@ -143,7 +154,7 @@ describe("Comments tests", function() {
 
 		it("get by author", function() {
 			return request(app)
-				.get(byLabelUrl + "?key=author&value=" + this.userId)
+				.get(byLabelUrl + "?key=author&value=" + this.user._id)
 				.expect(200)
 				.then((allCommentResponse) => {
 					const _this = this;
@@ -153,7 +164,7 @@ describe("Comments tests", function() {
 					expect(allComments).to.have.lengthOf(2);
 					allComments.forEach(function(elem){
 						helper.compareTwoComments(elem, _this.commentToCreate.content,
-							_this.poemToCreate.title, _this.user.firstname, _this.user.lastname);
+							_this.poem.title, _this.user.firstname, _this.user.lastname);
 					});
 					return;
 				});
@@ -161,7 +172,7 @@ describe("Comments tests", function() {
 
 		it("get by poem", function() {
 			return request(app)
-				.get(byLabelUrl + "?key=poem&value=" + this.poemId)
+				.get(byLabelUrl + "?key=poem&value=" + this.poem._id)
 				.expect(200)
 				.then((allCommentResponse) => {
 					const _this = this;
@@ -171,7 +182,7 @@ describe("Comments tests", function() {
 					expect(allComments).to.have.lengthOf(2);
 					allComments.forEach(function(elem){
 						helper.compareTwoComments(elem, _this.commentToCreate.content,
-							_this.poemToCreate.title, _this.user.firstname, _this.user.lastname);
+							_this.poem.title, _this.user.firstname, _this.user.lastname);
 					});
 					return;
 				});
@@ -181,10 +192,10 @@ describe("Comments tests", function() {
 
 	describe("delete", function() {
 		it("delete an existing comment", function() {
-			return helper.commentCreator(app, this.user, this.poemToCreate, this.commentToCreate, 1)
-				.then((resultConstructor) => {
+			return helper.commentCreator(app, this.commentToCreate, 1)
+				.then((createdCommentsList) => {
 					return request(app)
-						.delete(adminUrl + "/" + resultConstructor.commentId)
+						.delete(adminUrl + "/" + createdCommentsList[0]._id)
 						.expect(201)
 						.then((deletedComment) => {
 							return helper.successCretation(deletedComment.body);
@@ -196,9 +207,9 @@ describe("Comments tests", function() {
 	describe("edition", function() {
 		beforeEach(function() {
 			this.properties = {};
-			return helper.commentCreator(app, this.user, this.poemToCreate, this.commentToCreate, 1)
-				.then((createdComment) => {
-					this.createdComment = createdComment;
+			return helper.commentCreator(app, this.commentToCreate, 1)
+				.then((createdCommentsList) => {
+					this.createdComment = createdCommentsList[0];
 					return;
 				});
 		});
@@ -206,7 +217,7 @@ describe("Comments tests", function() {
 		it("success with denounced flag", function() {
 			this.properties = {denounced : true};
 			return request(app)
-				.patch(memberUrl + "/" + this.createdComment.commentId)
+				.patch(memberUrl + "/" + this.createdComment._id)
 				.send(this.properties)
 				.expect(201)
 				.then((updatedCommentResponse) => {
@@ -218,7 +229,7 @@ describe("Comments tests", function() {
 		it("failed with content property", function() {
 			this.properties = {content : true};
 			return request(app)
-				.patch(memberUrl + "/" + this.createdComment.commentId)
+				.patch(memberUrl + "/" + this.createdComment._id)
 				.send(this.properties)
 				.expect(500)
 				.then((updatedCommentResponse) => {

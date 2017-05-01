@@ -1,7 +1,8 @@
 User ==> OK
   mise à jour du delete de user
   verif du findandUpdate si la proprieté n'est pas dans l'obj
-  patch au lieu du put
+  patch au lieu du put,
+  u
 Peom =>
   veruif userid avant le save(). est ce que le populate ne le fait pas déja?
   verif du findandUpdate si la proprieté n'est pas dans l'obj
@@ -20,3 +21,4 @@ coherence
 json-schema
   utiliser les valeur par defaut automatique dans le schéma
   pour les user supprimer le premier schema.
+  mettre en place les min et max length
