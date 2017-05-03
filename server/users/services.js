@@ -172,6 +172,8 @@ function updateUser(req, res){
 }
 
 function runUpdate(req, res, properties){
+	console.log("---", properties);
+
 	userDbAccess.findByIdAndUpdate(req.params.id, properties)
 		.then((value) => {
 			res.status(201).json({
@@ -191,14 +193,14 @@ function getKeyValidation(req, res){
 			if (_.isEmpty(user)){
 				return metiers.quitWithFailure(req, res, responseMsg.failure.getKeyValidation.invalidAccount, 400);
 			}
-			return runKeyValiodation(res, user);
+			return runKeyValidation(res, user);
 		})
 		.catch(() => {
 			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 		});
 }
 
-function runKeyValiodation(res, user){
+function runKeyValidation(res, user){
 	user.status = myVar.status.watingValidation;
 	delete user.hashkey;
 	user.hashkey = undefined;

@@ -94,10 +94,7 @@ function commentCreator(app, commentsParams, numberToCreate){
 function createUser(userParams){
 	const userToSave = new userServices.userDbAccess(userServices.fillUserModel(userParams));
 	return userToSave.save()
-		.then((savedUser) =>  {
-			console.log("*****", savedUser);
-			return  savedUser
-		});
+		.then((savedUser) => savedUser);
 }
 
 function createPoem(poemParams, numberToCreate){

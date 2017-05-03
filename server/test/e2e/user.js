@@ -245,16 +245,19 @@ describe("User tests", function () {
 		});
 
 		describe("with good elements", function() {
-			const tab = ["firstname", "lastname", "phone", "login", "email"];
+			const tab = ["firstname", "lastname", "phone", "login", "email", "right", "status"];
 
 			tab.forEach(function(elem){
 				describe("property " + elem , function() {
 					beforeEach(function(){
-						this.propertyToUpdate[elem] = "toto";
+						this.propertyToUpdate[elem] = elem === "status" ? myVar.status.watingClicEmail : "toto";
 						this.propertyToUpdate.password= this.firstPassword;
+						// if(elem === "status"){
+						// 	this.propertyToUpdate[elem] = myVar.status.watingClicEmail;
+						// }
 					});
 
-					it("Update the property " + elem, function(){
+					it("toto : Update the property " + elem, function(){
 						return request(app)
 							.put(memberUrl + "/" + this.userId1)
 							.send(this.propertyToUpdate)
@@ -272,6 +275,11 @@ describe("User tests", function () {
 								return userServices.userDbAccess.findById(this.userId1);
 							})
 							.then((value) => {
+								console.log(value);
+								if (elem === "status") {
+									expect(value[elem]).to.deep.equal(myVar.status.watingClicEmail);
+									return;
+								}
 								expect(value[elem]).to.equal(this.propertyToUpdate[elem]);
 								return;
 							});
