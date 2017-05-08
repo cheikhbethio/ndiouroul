@@ -115,14 +115,15 @@ describe("Users: connectionServices", function () {
 				right : "salsaBatKiz"
 			};
 			this.req = {
-				user : {
-					_id : this.user._id,
-					login : this.user.login,
-					lastname : this.user.lastname,
-					firstname : this.user.firstname,
-					right : this.user.right
+				session : {
+					curentUser : {
+						_id : this.user._id,
+						login : this.user.login,
+						lastname : this.user.lastname,
+						firstname : this.user.firstname,
+						right : this.user.right
+					}
 				},
-				session : {}
 			};
 			this.res = {
 				send: sinon.spy(),
@@ -161,12 +162,14 @@ describe("Users: connectionServices", function () {
 			//GIVEN
 			metiers.quitWithFailure = sinon.spy();
 
-			this.req.user  = {
-				id: undefined,
-				login: false,
-				lastname: undefined,
-				firstname: false,
-				right: 3
+			this.req.session = {
+				curentUser : {
+					id: undefined,
+					login: false,
+					lastname: undefined,
+					firstname: false,
+					right: 3
+				}
 			};
 
 			const message ={
@@ -186,14 +189,14 @@ describe("Users: connectionServices", function () {
 		it("must Log out", function() {
 			//GIVEN
 			this.req = {
-				logout : sinon.spy()
+				session : {destroy : sinon.spy()}
 			};
 
 			//WHEN
 			connectionServices.logoutMiddleware(this.req, this.res);
 
 			//THEN
-			sinon.assert.called(this.req.logout);
+			sinon.assert.called(this.req.session.destroy);
 			sinon.assert.calledWith(this.res.status(201).json, {
 				code : 201,
 				message : this.httpResponseMessage.success.successMessage,
@@ -228,7 +231,8 @@ describe("Users: connectionServices", function () {
 				body : {
 					login : "login",
 					password : "13245"
-				}
+				},
+				session :{}
 			};
 			this.res ={
 				send: sinon.spy(),
@@ -273,6 +277,7 @@ describe("Users: connectionServices", function () {
 		});
 
 		it("with good params but bad password", function(done) {
+			// this.req.session = {};
 			const mock1 = sinon.mock(userDbAccess)
 			.expects("findOne")
 			.withArgs({$or:[{"login" : this.req.body.login},	{"email" :this.req.body.login}]})

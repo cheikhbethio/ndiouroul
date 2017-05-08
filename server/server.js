@@ -12,18 +12,18 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 // const passport = require("passport");
-const mayVar = require("./config/variables");
+const myVar = require("./config/variables");
 const logger = require("log");
 const print = new logger("info");
 const app = express();
 var configDB = require("./config/database.js");
 const port = process.env.PORT || 8000;
-
-mongoose.Promise = global.Promise;
-mongoose.connect(configDB.db.test);
 const EventEmitter = require("events");
 const emitter = new EventEmitter();
 emitter.setMaxListeners(200);
+
+mongoose.connect(configDB.db.test);
+mongoose.Promise = global.Promise;
 
 // on recup les variables
 
@@ -41,8 +41,8 @@ app.use(session({
 	secret: "seugneBethiodieuredieufway",
 	resave: true,
 	saveUninitialized: true,
-	expires: new Date(Date.now() + mayVar.session.session_duration),
-	cookie: {maxAge: mayVar.session.session_duration}
+	expires: new Date(Date.now() + myVar.session.session_duration),
+	cookie: {maxAge: myVar.session.session_duration}
 }));
 // app.use(passport.initialize());
 // app.use(passport.session());

@@ -32,8 +32,6 @@ function authenticate(req, res, next){
 		additionalProperties : false
 	};
 	const paramsValidation = metiers.isValidModel(body, schemaValidator);
-	console.log("+++++", paramsValidation);
-	console.log("+++++", body);
 	if (!paramsValidation.valid) {
 		return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 	}
@@ -43,7 +41,7 @@ function authenticate(req, res, next){
 				let goodGivenPassword = false;
 				if (!_.isEmpty(foundUser) && foundUser.password) {
 					goodGivenPassword = bcrypt.compareSync(body.password, foundUser.password);
-					req.user = foundUser;
+					req.session.curentUser = foundUser;
 				}
 				return goodGivenPassword ? next() :  res.status(400).json({
 					code : 400,
@@ -102,11 +100,11 @@ function regeneratePassWordAndUpdateUser(req, res, user){
 
 function loginMiddleware(req, res){
 	const forCookie = {
-		id: req.user._id,
-		login: req.user.login,
-		lastname: req.user.lastname,
-		firstname: req.user.firstname,
-		right: giveRight(req.user.right)
+		id: req.session.curentUser._id,
+		login: req.session.curentUser.login,
+		lastname: req.session.curentUser.lastname,
+		firstname: req.session.curentUser.firstname,
+		right: giveRight(req.session.curentUser.right)
 	};
 
 	const isValidUser = _.every(forCookie, function(elem){
@@ -121,8 +119,7 @@ function loginMiddleware(req, res){
 		return metiers.quitWithFailure(req, res, message, 400);
 	}
 
-	req.user.password = "rien du tout";
-	req.session.curentUser = req.user;
+	req.session.curentUser.password = "rien du tout";
 	res.cookie("SeugneBethioLaGrace", JSON.stringify(forCookie), { maxAge: 				myVar.session.session_duration });
 
 	return res.status(201).json({
@@ -133,7 +130,9 @@ function loginMiddleware(req, res){
 }
 
 function logoutMiddleware (req, res) {
-	req.logout();
+	req.session.destroy();
+	// req.session = null;
+
 	return res.status(201).json({
 		code : 201,
 		message : responseMsg.success.successMessage
