@@ -1,22 +1,24 @@
-'use strict';
+"use strict";
 
-angular.module('connexion', ['ui.router'])
-	.config(['$stateProvider', function ($stateProvider) {
+(function () {
+
+angular.module("connexion", ["ui.router"])
+	.config(["$stateProvider", function ($stateProvider) {
 		$stateProvider
-			.state('site.connexion', {
-				url: '/connexion?registration&disconnected',
-				css: 'assets/css/body/sign.css',
-				templateUrl: 'app/site/sign/connexion.html',
-				controller: 'connexionController'
+			.state("site.connexion", {
+				url: "/connexion?registration&disconnected",
+				css: "assets/css/body/sign.css",
+				templateUrl: "app/site/sign/connexion.html",
+				controller: "connexionController"
 			})
-			.state('site.regeneratePassWord', {
-				url: '/regeneratePassWord',
-				templateUrl: 'app/site/sign/regeneratePassword.html',
-				controller: 'regeneratePasswordController'
-			})
+			.state("site.regeneratePassWord", {
+				url: "/regeneratePassWord",
+				templateUrl: "app/site/sign/regeneratePassword.html",
+				controller: "regeneratePasswordController"
+			});
 	}])
-	.controller('regeneratePasswordController', ['PasseWordRegenerateService', '$rootScope', '$scope',
-		'$state',
+	.controller("regeneratePasswordController", ["PasseWordRegenerateService", "$rootScope", "$scope",
+		"$state",
 		function (PasseWordRegenerateService, $rootScope, $scope, $state) {
 			$rootScope.titre = "Thiantakones";
 			$scope.regeneratePassWord = regeneratePassWord;
@@ -27,9 +29,9 @@ angular.module('connexion', ['ui.router'])
 						email: $scope.user.email,
 					}, function (user) {
 						console.log("*********Cool**************")
-						$state.go('site.accueil');
+						$state.go("site.accueil");
 					}, function (error) {
-						console.log('Erreur de connection');
+						console.log("Erreur de connection");
 						setInfo(echecConnexion, "danger");
 						$scope.user = {};
 					})
@@ -37,7 +39,7 @@ angular.module('connexion', ['ui.router'])
 			}
 		}
 	])
-	.controller('connexionController', ['Login', '$rootScope', '$scope', '$state', '$localStorage',
+	.controller("connexionController", ["Login", "$rootScope", "$scope", "$state", "$localStorage",
 		"$stateParams",
 			function (Login, $rootScope, $scope, $state, $localStorage, $stateParams) {
 
@@ -87,14 +89,14 @@ angular.module('connexion', ['ui.router'])
 						password: $scope.user.password,
 					}, function (user) {
 						// $localStorage.currentUser = user;
-						$state.go('site.accueil');
+						$state.go("site.accueil");
 					}, function (error) {
-						console.log('Erreur de connection');
+						console.log("Erreur de connection");
 						setInfo(echecConnexion, "danger");
 						$scope.user = {};
 					});
 				} else {
-					console.log('Formulaire Invalide');
+					console.log("Formulaire Invalide");
 					setInfo(echecConnexion, "danger");
 				}
 			};
@@ -107,3 +109,4 @@ angular.module('connexion', ['ui.router'])
 			//called function
 			init();
 			}]);
+})();

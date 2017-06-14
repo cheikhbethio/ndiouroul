@@ -1,5 +1,7 @@
 "use strict";
 
+const jwt    = require("jsonwebtoken");
+// const jwt    = {sign :  function(){}};
 const bcrypt = require("bcrypt");
 const chai = require("chai");
 const expect = chai.expect;
@@ -147,6 +149,8 @@ describe("Users: connectionServices", function () {
 				expect(responseStatus).to.be.equal(201);
 				return this;
 			};
+			const stub = sinon.stub(jwt, "sign").returns("token");
+
 			//WHEN
 			connectionServices.loginMiddleware(this.req, this.res);
 			//THEN
@@ -154,8 +158,10 @@ describe("Users: connectionServices", function () {
 			sinon.assert.calledWith(this.res.status(201).json, {
 				code : 201,
 				message : this.httpResponseMessage.success.successMessage,
-				result : this.cookie
+				result : this.cookie,
+				token : "token"
 			});
+			stub.restore();
 		});
 
 		it("with bad properties", function() {

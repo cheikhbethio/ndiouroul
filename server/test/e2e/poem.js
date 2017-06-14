@@ -10,6 +10,7 @@ const myVar = require("../../config/variables");
 const writerUrl = "/api/writer/poem";
 const publicUrl = "/api/public/poem";
 const lastPoeme = "/api/public/last/poem";
+const loginUrl = "/api/login";
 const bylabel = "/api/public/bylabel/poem";
 const helper = require("../helper");
 const ObjectId = require("mongodb").ObjectID;
@@ -41,12 +42,21 @@ describe("Pomes tests", function() {
 			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
+		this.token = undefined;
+		this.credentials = {
+			password : this.user.password,
+			login : this.user.login
+		};
 
 		return helper.createUser(this.user)
 			.then((createdUser) => {
 				this.user = createdUser;
 				this.poemToCreate1.author = String(createdUser._id);
 				this.poemToCreate2.author = String(createdUser._id);
+				return request(app).post(loginUrl).send(this.credentials);
+			})
+			.then(loginResponse => {
+				this.token = loginResponse.body.token;
 				return;
 			});
 
@@ -56,6 +66,7 @@ describe("Pomes tests", function() {
 		it("create poem", function() {
 			return request(app)
 				.post(writerUrl)
+				.set("x-access-token", this.token)
 				.send(this.poemToCreate1)
 				.expect(201)
 				.then((response) => {
@@ -67,6 +78,7 @@ describe("Pomes tests", function() {
 			this.poemToCreate1.badPropertie = "bad propertie";
 			return request(app)
 				.post(writerUrl)
+				.set("x-access-token", this.token)
 				.send(this.poemToCreate1)
 				.expect(500)
 				.then((response) => {
@@ -79,6 +91,7 @@ describe("Pomes tests", function() {
 			delete  this.poemToCreate1.title;
 			return request(app)
 				.post(writerUrl)
+				.set("x-access-token", this.token)
 				.send(this.poemToCreate1)
 				.expect(500)
 				.then((response) => {
@@ -188,6 +201,7 @@ describe("Pomes tests", function() {
 					const createdPoem = createdPoemsList[0];
 					return request(app)
 						.delete(writerUrl + "/" + createdPoem._id)
+						.set("x-access-token", this.token)
 						.expect(201)
 						.then((deletionResponse) => {
 							const expectedResponse= {
@@ -209,6 +223,7 @@ describe("Pomes tests", function() {
 		it("which not exist", function() {
 			return request(app)
 				.delete(writerUrl + "/" +  ObjectId("58f61d381d5e031c9c533e40"))
+				.set("x-access-token", this.token)
 				.expect(201)
 				.then((deletionResponse) => {
 					const expectedResponse= {
@@ -235,6 +250,7 @@ describe("Pomes tests", function() {
 			this.body = {content : "contentUpdated"};
 			return request(app)
 				.patch(writerUrl + "/" + this.createdPoemId)
+				.set("x-access-token", this.token)
 				.send(this.body)
 				.expect(201)
 				.then((updatingResponse1) => {
@@ -247,6 +263,7 @@ describe("Pomes tests", function() {
 					expect(updatingResponse1.body).to.deep.equal(expectedResponse);
 					return request(app)
 						.patch(writerUrl + "/" + this.createdPoemId)
+						.set("x-access-token", this.token)
 						.send(this.body)
 						.expect(201);
 				})
@@ -266,6 +283,7 @@ describe("Pomes tests", function() {
 			this.body = {badPropertie : "badPropertie"};
 			return request(app)
 				.patch(writerUrl + "/" + this.createdPoemId)
+				.set("x-access-token", this.token)
 				.send(this.body)
 				.expect(500)
 				.then((updateResponse) => {

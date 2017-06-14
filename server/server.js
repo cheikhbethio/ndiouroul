@@ -14,6 +14,9 @@ const cookieParser = require("cookie-parser");
 // const passport = require("passport");
 const myVar = require("./config/variables");
 const logger = require("log");
+// const acl = require("./acl/services");
+
+
 const print = new logger("info");
 const app = express();
 var configDB = require("./config/database.js");
@@ -22,7 +25,7 @@ const EventEmitter = require("events");
 const emitter = new EventEmitter();
 emitter.setMaxListeners(200);
 
-mongoose.connect(configDB.db.test);
+mongoose.connect(configDB.db.url);
 mongoose.Promise = global.Promise;
 
 // on recup les variables
@@ -50,8 +53,6 @@ app.use(flash());
 
 app.use(function manageSession(req, res, next) {
 	var session_age = req.session.cookie.expires;
-	// console.log("req.session : ", req.session);
-	// console.log("new Date(Date.now() + 6)", new Date(Date.now()));
 	if (session_age < new Date(Date.now())) {
 		req.logout();
 		req.session.destroy();
@@ -67,6 +68,11 @@ app.listen(port, function () {
 	print.info("node server on port : " + port);
 	print.info("application_root : " + application_root);
 });
+
+// app.all("/api/member|admin|writer/*", acl.isLoggedIn);
+// app.all("/api/member/*", acl.isLoggedIn, acl.isMember);
+// app.all("/api/admin/*", acl.isLoggedIn, acl.isGod);
+// app.all("/api/writer/*", acl.isLoggedIn, acl.isWritter);
 
 require("./users/userRoutes.js")(app);
 require("./users/connectionRoutes.js")(app);

@@ -65,6 +65,7 @@ var userDbAccess = mongoose.model("users", userSchema);
 function fillUserModel(source){
 	let destination = source;
 	const paramsValidation = metiers.isValidModel(destination, userParamsValidatorSchema);
+
 	if (!paramsValidation.valid) {
 		return undefined;
 	}
@@ -72,7 +73,7 @@ function fillUserModel(source){
 	destination.right = myVar.darajas.SIMPLE;
 	destination.created_at = Date.now();
 	destination.status = myVar.status.watingClicEmail;
-	destination.hashkey =  bcrypt.hashSync(source.email + source.firstname + source.lastname, bcrypt.genSaltSync(8)) + "end";
+	destination.hashkey = generateHash();
 	let isValidModel = metiers.isValidModel(destination, userValidatorSchema);
 	return isValidModel.valid ? destination : undefined;
 }
@@ -188,7 +189,7 @@ function runUpdate(req, res, properties){
 }
 
 function getKeyValidation(req, res){
-	userDbAccess.findOne({ "hashkey": req.query.key })
+	userDbAccess.findOne({ "hashkey": req.body.key })
 		.then((user) => {
 			if (_.isEmpty(user)){
 				return metiers.quitWithFailure(req, res, responseMsg.failure.getKeyValidation.invalidAccount, 400);
@@ -213,6 +214,16 @@ function runKeyValidation(res, user){
 				message : responseMsg.failure.getKeyValidation.validation
 			});
 		});
+}
+
+function generateHash(){
+	const alphabet = "azertyuiopmlkjhgfdsqbvcxw1234567890AZERTYUIOPMLKJHGFDSQNBVCXW";
+	const suffledString = _.shuffle(alphabet);
+	var hash="";
+	for (var i = 0; i < suffledString.length ; i++) {
+		hash += suffledString[i];
+	}
+	return hash;
 }
 
 exports = _.extend(exports ,{

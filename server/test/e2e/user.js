@@ -1,7 +1,7 @@
 "use strict";
 
 require("../util");
-const _ = require("underscore");
+const _ = require("lodash");
 const request = require("supertest-as-promised");
 const chai = require("chai");
 chai.should();
@@ -11,6 +11,7 @@ const myVar = require("../../config/variables");
 const url = "/api/public/user";
 const adminUrl = "/api/admin/user";
 const memberUrl = "/api/member/user";
+const loginUrl = "/api/login";
 const userServices = require("../../users/services");
 const helper = require("../helper");
 
@@ -33,6 +34,11 @@ describe("User tests", function () {
 			password : this.secondPassword,
 			login : "baymoussa2",
 			email : "mmoussasow2@gmail.com"
+		};
+		this.token = undefined;
+		this.credentials = {
+			password : this.user1.password,
+			login : this.user1.login
 		};
 	});
 
@@ -120,13 +126,17 @@ describe("User tests", function () {
 
 		beforeEach(function() {
 			this.usersListLenght = 2;
-			return helper.createUser(this.user1)
+			return helper.createUser(_.cloneDeep(this.user1))
 				.then((user1) => {
 					this.userId1 = user1._id;
 					return helper.createUser(this.user2);
 				})
 				.then((user2) => {
 					this.userId2 = user2._id;
+					return request(app).post(loginUrl).send(this.credentials);
+				})
+				.then(loginResponse => {
+					this.token = loginResponse.body.token;
 					return;
 				});
 		});
@@ -135,13 +145,15 @@ describe("User tests", function () {
 			return request(app)
 			.get(memberUrl + "/"+this.userId1)
 			.expect(200)
+			.set("x-access-token", this.token)
 			.then((value) => {
 				let res = value.body.user;
-				let otherProperties = _.pick(res, "firstname", "lastname", "phone", "login","email","right");
+				let otherProperties = _.pick(res, "firstname", "lastname", "phone", "login","email");
 				expect(res.status).to.deep.equal(myVar.status.watingClicEmail);
 				expect(res.password).to.be.a("string");
 				expect(res.created_at).to.be.a("string");
-				expect(otherProperties).to.deep.equal(_.pick(this.user1, "firstname", "lastname", "phone", "login","email","right"));
+				expect(res.right).to.be.equal("salsa");
+				expect(otherProperties).to.deep.equal(_.pick(this.user1, "firstname", "lastname", "phone", "login","email"));
 				return;
 			});
 		});
@@ -149,6 +161,7 @@ describe("User tests", function () {
 		it("find many users", function() {
 			return request(app)
 				.get(adminUrl)
+				.set("x-access-token", this.token)
 				.expect(200)
 				.then((response) => {
 					const usersList = response.body.result;
@@ -164,6 +177,7 @@ describe("User tests", function () {
 		it("findUser : not user to find with a bad ObjectID", function() {
 			return request(app)
 			.get(memberUrl + "/58c54b21326b5b02beb26fe5")
+			.set("x-access-token", this.token)
 			.expect(200)
 			.then((value) => {
 				expect(value.body.user).to.be.null;
@@ -174,6 +188,7 @@ describe("User tests", function () {
 		it("findUser : not user to find with a non ObjectID", function() {
 			return request(app)
 			.get(memberUrl + "/1212")
+			.set("x-access-token", this.token)
 			.expect(500)
 			.then((value) => {
 				expect(value.body).to.deep.equal({
@@ -191,6 +206,10 @@ describe("User tests", function () {
 			return helper.createUser(this.user1)
 				.then((user1) => {
 					this.userId1 = user1._id;
+					return request(app).post(loginUrl).send(this.credentials);
+				})
+				.then(loginResponse => {
+					this.token = loginResponse.body.token;
 					return;
 				});
 		});
@@ -198,6 +217,7 @@ describe("User tests", function () {
 		it("delete an exist user", function() {
 			return request(app)
 				.delete(adminUrl + "/" + this.userId1)
+				.set("x-access-token", this.token)
 				.expect(200)
 				.then((value) => {
 					expect(_.omit(value.body,"_id")).to.deep.equal( {
@@ -212,6 +232,7 @@ describe("User tests", function () {
 		it("delete an inexistant user -- good ObjectID", function() {
 			return request(app)
 				.delete(adminUrl + "/" + "58c54b21326b5b02beb26fe5")
+				.set("x-access-token", this.token)
 				.expect(200)
 				.then((err) => {
 					expect(err.body._id).to.be.null;
@@ -222,6 +243,7 @@ describe("User tests", function () {
 		it("delete an inexistant user -- bad ObjectID", function() {
 			return request(app)
 				.delete(adminUrl + "/" + "132")
+				.set("x-access-token", this.token)
 				.expect(500)
 				.then((err) => {
 					expect(err.body).to.deep.equal({
@@ -240,6 +262,10 @@ describe("User tests", function () {
 			return helper.createUser(this.user1)
 				.then((user1) => {
 					this.userId1 = user1._id;
+					return request(app).post(loginUrl).send(this.credentials);
+				})
+				.then(loginResponse => {
+					this.token = loginResponse.body.token;
 					return;
 				});
 		});
@@ -260,6 +286,7 @@ describe("User tests", function () {
 					it("toto : Update the property " + elem, function(){
 						return request(app)
 							.put(memberUrl + "/" + this.userId1)
+							.set("x-access-token", this.token)
 							.send(this.propertyToUpdate)
 							.expect(201)
 							.then((res) => {
@@ -275,7 +302,6 @@ describe("User tests", function () {
 								return userServices.userDbAccess.findById(this.userId1);
 							})
 							.then((value) => {
-								console.log(value);
 								if (elem === "status") {
 									expect(value[elem]).to.deep.equal(myVar.status.watingClicEmail);
 									return;
@@ -293,6 +319,7 @@ describe("User tests", function () {
 				};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
+					.set("x-access-token", this.token)
 					.send(this.propertyToUpdate)
 					.expect(201)
 					.then((response) => {
@@ -321,6 +348,7 @@ describe("User tests", function () {
 				this.propertyToUpdate = {login : "newlogin", password : "badPassword"};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
+					.set("x-access-token", this.token)
 					.send(this.propertyToUpdate)
 					.then((response) => {
 						this.messageToRecieve = {
@@ -335,6 +363,7 @@ describe("User tests", function () {
 				this.propertyToUpdate = {login : "baymoussa", password : this.firstPassword};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
+					.set("x-access-token", this.token)
 					.send(this.propertyToUpdate)
 					.expect(400)
 					.then((response) => {
@@ -350,6 +379,7 @@ describe("User tests", function () {
 				this.propertyToUpdate = {email : "mmoussasow@gmail.com", password :this.firstPassword};
 				return request(app)
 					.put(memberUrl + "/" + this.userId1)
+					.set("x-access-token", this.token)
 					.send(this.propertyToUpdate)
 					.expect(400)
 					.then((response) => {

@@ -9,6 +9,7 @@ const app = require("../../server");
 const myVar = require("../../config/variables");
 const memberUrl = "/api/member/comment";
 const adminUrl = "/api/admin/comment";
+const loginUrl = "/api/login";
 const byLabelUrl = "/api/public/bylabel/comment";
 const helper = require("../helper");
 const ObjectId = require("mongodb").ObjectID;
@@ -37,6 +38,11 @@ describe("Comments tests", function() {
 			login : "baymoussa",
 			email : "mmoussasow@gmail.com"
 		};
+		this.token = undefined;
+		this.credentials = {
+			password : this.user.password,
+			login : this.user.login
+		};
 		return helper.createUser(this.user)
 			.then((createdUser) => {
 				this.commentToCreate.author = String(createdUser._id);
@@ -47,6 +53,10 @@ describe("Comments tests", function() {
 			.then((createdPoemsList) => {
 				this.commentToCreate.poem = String(createdPoemsList[0]._id);
 				this.poem = createdPoemsList[0];
+				return request(app).post(loginUrl).send(this.credentials);
+			})
+			.then(loginResponse => {
+				this.token = loginResponse.body.token;
 				return;
 			});
 	});
@@ -55,6 +65,7 @@ describe("Comments tests", function() {
 		it("create comment", function() {
 			return request(app)
 				.post(memberUrl)
+				.set("x-access-token", this.token)
 				.send(this.commentToCreate)
 				.expect(201)
 				.then((createdCommentResponse) => {
@@ -66,6 +77,7 @@ describe("Comments tests", function() {
 			this.commentToCreate.badPropertie = "badPropertie";
 			return request(app)
 				.post(memberUrl)
+				.set("x-access-token", this.token)
 				.send(this.commentToCreate)
 				.expect(500)
 				.then((createdCommentResponse) => {
@@ -77,6 +89,7 @@ describe("Comments tests", function() {
 			delete this.commentToCreate.poem;
 			return request(app)
 				.post(memberUrl)
+				.set("x-access-token", this.token)
 				.send(this.commentToCreate)
 				.expect(500)
 				.then((createdCommentResponse) => {
@@ -93,6 +106,7 @@ describe("Comments tests", function() {
 				.then((createdCommentsList) => {
 					return request(app)
 						.get(adminUrl + "/" + createdCommentsList[0]._id)
+						.set("x-access-token", this.token)
 						.expect(200);
 				})
 				.then((gettedCommentResponse) => {
@@ -108,6 +122,7 @@ describe("Comments tests", function() {
 		it("get by bad _id", function() {
 			return request(app)
 				.get(adminUrl + "/badId")
+				.set("x-access-token", this.token)
 				.expect(500)
 				.then((response) => {
 					return helper.failureGetting(response.body);
@@ -117,6 +132,7 @@ describe("Comments tests", function() {
 		it("get by not existing poem", function() {
 			return request(app)
 				.get(adminUrl + "/" + ObjectId("58f61d381d5e031c9c533e43"))
+				.set("x-access-token", this.token)
 				.expect(200)
 				.then((response) => {
 					return helper.failureNotExisting(response.body);
@@ -135,6 +151,7 @@ describe("Comments tests", function() {
 		it("getAll", function() {
 			return request(app)
 				.get(adminUrl)
+				.set("x-access-token", this.token)
 				.expect(200)
 				.then((allCommentResponse) => {
 					const responseBody = allCommentResponse.body;
@@ -196,6 +213,7 @@ describe("Comments tests", function() {
 				.then((createdCommentsList) => {
 					return request(app)
 						.delete(adminUrl + "/" + createdCommentsList[0]._id)
+						.set("x-access-token", this.token)
 						.expect(201)
 						.then((deletedComment) => {
 							return helper.successCretation(deletedComment.body);
@@ -218,6 +236,7 @@ describe("Comments tests", function() {
 			this.properties = {denounced : true};
 			return request(app)
 				.patch(memberUrl + "/" + this.createdComment._id)
+				.set("x-access-token", this.token)
 				.send(this.properties)
 				.expect(201)
 				.then((updatedCommentResponse) => {
@@ -230,6 +249,7 @@ describe("Comments tests", function() {
 			this.properties = {content : true};
 			return request(app)
 				.patch(memberUrl + "/" + this.createdComment._id)
+				.set("x-access-token", this.token)
 				.send(this.properties)
 				.expect(500)
 				.then((updatedCommentResponse) => {

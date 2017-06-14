@@ -8,8 +8,8 @@ const userDbAccess = userServices.userDbAccess;
 const myVar = require("../config/variables.js");
 const theMailer = require("../config/jobsMailer.js");
 const responseMsg = myVar.httpMessage.response;
+const jwt    = require("jsonwebtoken");
 var rightTab = [];
-
 
 module.exports = {
 	updatePassWord,
@@ -66,6 +66,58 @@ function updatePassWord(req, res){
 		});
 }
 
+function loginMiddleware(req, res){
+	const forCookie = {
+		id: req.session.curentUser._id,
+		login: req.session.curentUser.login,
+		lastname: req.session.curentUser.lastname,
+		firstname: req.session.curentUser.firstname,
+		right: giveRight(req.session.curentUser.right)
+	};
+
+
+	const isValidUser = _.every(forCookie, function(elem){
+		return elem;
+	});
+
+	if (!isValidUser) {
+		const message ={
+			code : 400,
+			message : "notConnected"
+		};
+		return metiers.quitWithFailure(req, res, message, 400);
+	}
+
+	req.session.curentUser.password = "rien du tout";
+	res.cookie("SeugneBethioLaGrace", JSON.stringify(forCookie), { maxAge: myVar.session.session_duration });
+
+	const token = jwt.sign(req.session.curentUser, myVar.secret, { expiresIn: myVar.session.tokenDuration });
+
+	return res.status(201).json({
+		code : 201,
+		message : responseMsg.success.successMessage,
+		result : forCookie,
+		token
+	});
+}
+
+function logoutMiddleware (req, res) {
+	req.session.destroy();
+
+	return res.status(201).json({
+		code : 201,
+		message : responseMsg.success.successMessage
+	});
+}
+
+function sessionMiddleware(req, res) {
+	return res.status(201).json({
+		code : 201,
+		message : responseMsg.success.successMessage,
+		result : req.session.id
+	});
+}
+
 function getRegeneratedPassWord(){
 	const alphabet = "azertyuiopmlkjhgfdsqbvcxw+=&éè_çà1234567890*?$#!AZERTYUIOPMLKJHGFDSQNBVCXW";
 	const suffledString = _.shuffle(alphabet);
@@ -96,55 +148,6 @@ function regeneratePassWordAndUpdateUser(req, res, user){
 		.catch(() => {
 			return metiers.quitWithFailure(req, res, responseMsg.failure.failureMessage, 500);
 		});
-}
-
-function loginMiddleware(req, res){
-	const forCookie = {
-		id: req.session.curentUser._id,
-		login: req.session.curentUser.login,
-		lastname: req.session.curentUser.lastname,
-		firstname: req.session.curentUser.firstname,
-		right: giveRight(req.session.curentUser.right)
-	};
-
-	const isValidUser = _.every(forCookie, function(elem){
-		return elem;
-	});
-
-	if (!isValidUser) {
-		const message ={
-			code : 400,
-			message : "notConnected"
-		};
-		return metiers.quitWithFailure(req, res, message, 400);
-	}
-
-	req.session.curentUser.password = "rien du tout";
-	res.cookie("SeugneBethioLaGrace", JSON.stringify(forCookie), { maxAge: 				myVar.session.session_duration });
-
-	return res.status(201).json({
-		code : 201,
-		message : responseMsg.success.successMessage,
-		result : forCookie
-	});
-}
-
-function logoutMiddleware (req, res) {
-	req.session.destroy();
-	// req.session = null;
-
-	return res.status(201).json({
-		code : 201,
-		message : responseMsg.success.successMessage
-	});
-}
-
-function sessionMiddleware(req, res) {
-	return res.status(201).json({
-		code : 201,
-		message : responseMsg.success.successMessage,
-		result : req.session.id
-	});
 }
 
 function giveRight(right) {
