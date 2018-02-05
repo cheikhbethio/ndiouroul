@@ -14,8 +14,8 @@
 
 
 
-	viewPoemController.$inject = ['Poeme','CurrentUser', 'comment', 'getCommentByLabel','$scope', '$uibModalInstance','poeme'];
-	function viewPoemController(Poeme, CurrentUser, comment, getCommentByLabel, $scope, $uibModalInstance, poeme) {
+	viewPoemController.$inject = ['Poeme','CurrentUser', 'comment','$scope', '$uibModalInstance','poeme'];
+	function viewPoemController(Poeme, CurrentUser, comment, $scope, $uibModalInstance, poeme) {
 		$scope.poemToDisplay = poeme;
 		$scope.addComment = addComment;
 		$scope.newComment = {};
@@ -35,40 +35,40 @@
 
 		function denounceComment(commentDoc){
 			commentDoc.denounced =!commentDoc.denounced;
-			comment.update({id : commentDoc._id}, commentDoc, function(res){
-			});
+			comment.update(commentDoc._id, commentDoc);
 		}
 
 
 		function denouncePoem(){
 			$scope.poemToDisplay.denounced = !$scope.poemToDisplay.denounced;
-			Poeme.update({id : $scope.poemToDisplay._id}, $scope.poemToDisplay, function(res){
-		});
+			Poeme.update($scope.poemToDisplay._id, $scope.poemToDisplay);
 		}
 
 		function addComment(){
 			$scope.newComment.id_poeme = poeme._id;
 			$scope.newComment.id_author = CurrentUser.getId();
-			comment.save($scope.newComment, function (resp) {
-				$scope.info.message = resp.message;
-				$scope.info.showMessage = true;
-				if (resp.code === 0) {
-					getComment();
-					$scope.info.type = "success";
+			comment.post($scope.newComment)
+				.then(function(res) {
+					$scope.info.message = res.message;
 					$scope.info.showMessage = true;
-				}else{
-					$scope.info.type = "danger";
-					$scope.info.showMessage = true;
-				}
-				$scope.newComment.content = "";
-				$scope.showInputComment = false;
-			});
+					if (res.code === 0) {
+						getComment();
+						$scope.info.type = "success";
+						$scope.info.showMessage = true;
+					}else{
+						$scope.info.type = "danger";
+						$scope.info.showMessage = true;
+					}
+					$scope.newComment.content = "";
+					$scope.showInputComment = false;
+				})
 		}
 
 		function getComment(){
-			getCommentByLabel.get({key :"id_poeme", value : poeme._id},function(res){
-				$scope.commentList = res.result;
-			});
+			comment.getCommentByLabel({key :"id_poeme", value : poeme._id})
+				.then(function(res){
+					$scope.commentList = res.result;
+				});
 		}
 		function toggleComment(){
 			if($scope.isLoggedIn){
@@ -79,8 +79,8 @@
 	}
 
 
-	rubriqueController.$inject = ['$state', 'getPoemsByLabel','$stateParams','Poeme', 'myModal', '$rootScope', '$scope', '$uibModal'];
-	function rubriqueController($state, getPoemsByLabel, $stateParams, Poeme, myModal, $rootScope, $scope, $uibModal) {
+	rubriqueController.$inject = ['$state', '$stateParams','Poeme', 'myModal', '$rootScope', '$scope', '$uibModal'];
+	function rubriqueController($state, $stateParams, Poeme, myModal, $rootScope, $scope, $uibModal) {
 		var idParam = $stateParams.id;
 		$scope.viewPoem = viewPoem;
 		$scope.poemToDisplay;
@@ -90,22 +90,24 @@
 			'Gatt Saf', 'Les plus appréciés', 'L\'originalité spiritelle'];
 		$rootScope.confVariable.titre = $scope.rubricList[idParam-1];
 
-
-		getPoemsByLabel.get({key :"rubric", valu : idParam}, function(res){
-			if (res.code===0) {
-				$scope.poemlist = res.result;
-			}else{
-				$scope.info.message = res.message;
-				$scope.info.type = 'info';
-				$scope.info.showMessage = true;
-			}
-		});
+		Poeme.getPoemsByLabel({key :"rubric", value : idParam})
+			.then(function(res) {
+				if (res.code===0) {
+					$scope.poemlist = res.result;
+				} else {
+					$scope.info.message = "Rubrique vide pour le moment. Aucun poème présent";
+					$scope.info.type = 'info';
+					$scope.info.showMessage = true;
+				}
+			});
 
 		function viewPoem(width, poemeId) {
-			Poeme.get({id: poemeId}, function (res) {
-				$scope.poemToDisplay = res.result;
-				var poemModal = myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', $scope.poemToDisplay);
-			});
+			Poeme.get(poemeId)
+				.then(function(res){
+					$scope.poemToDisplay = res.result;
+					myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', $scope.poemToDisplay);
+				});
 		}
+
 	}
 })();

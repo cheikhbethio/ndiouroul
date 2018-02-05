@@ -1,11 +1,4 @@
 var currentUserModule = angular.module('currentUser', ['ngCookies', 'ngResource']);
-/*
-currentUserModule.factory('userCookie', ['$resource', function ($resource) {
-	return $resource('/api/session', {}, {
-		get: {method: 'GET'},
-	});
-}]);
-*/
 
 currentUserModule.factory('CurrentUser', ['$cookies', '$localStorage',  '$resource',
 	function($cookies, $localStorage, $resource) {

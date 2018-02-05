@@ -28,14 +28,17 @@
 				.state('dashboard.allPoeme', {
 					url: '/poeme',
 					templateUrl: 'app/manager/poemes/all.html',
-					controller: 'allPoemeController'
+					controller: 'allPoemeController',
+					resolve : {
+						allPoems : getAllPoem
+					}
 				})
 				.state('dashboard.lastPoeme', {
 					url: '/lastPoeme',
 					templateUrl: 'app/manager/poemes/last.html',
 					controller: 'lastPoemeController'
 				});
-				}])
+		}])
 
 		.controller('createPoemeController', createPoemeController)
 		.controller('editPoemeController', editPoemeController)
@@ -80,19 +83,20 @@
 					$scope.newPoeme.rubric = null;
 				}
 
-				Poeme.save($scope.newPoeme, function (resp) {
-					$scope.info.message = resp.message;
-					$scope.info.showMessage = true;
-					if(resp.code === 0) {
+				Poeme.post($scope.newPoeme)
+					.then(function(res){
 						$scope.info.type = "success";
-					} else {
+						$scope.info.message = res.message;
+					})
+					.catch(function(err){
 						$scope.info.message = "Le titre, le livre d'origine, " +
 							"l'image, la catégorie et contenu du poême sont tous obligatoire";
 						$scope.info.type = "danger";
+					})
+					.finally(function() {
 						$scope.info.showMessage = true;
-					}
-					$scope.newPoeme = {};
-				});
+						$scope.newPoeme = {};
+					})
 			}
 		}
 	}
@@ -137,16 +141,16 @@
 					$scope.poemToEdit.rubric = ind + 1;
 				}
 
-				Poeme.update({ id: $stateParams.id }, $scope.poemToEdit, function (resp) {
-					if(resp.code !== 0) {
+				Poeme.update($stateParams.id, $scope.poemToEdit)
+					.then(function(res){
 						$scope.info = {
-							message: resp.message,
-							type: "danger"
+							message: res.message,
+							type: "success"
 						};
-					} else {
+					})
+					.catch(function(){
 						$state.go("dashboard.allPoeme");
-					}
-				});
+					});
 			}
 		}
 	}
@@ -165,16 +169,16 @@
 			var modalConfirm = myModal.confirm('app/common/modalView/confirm.html', 'sm');
 			modalConfirm.result.then(function (res) {
 				if(res) {
-					Poeme.delete({ id: $scope.poemToDisplay._id }, function (res) {
-						if(res.code === 0) {
+					Poeme.delete($scope.poemToDisplay._id)
+						.then(function(res) {
 							$state.go('dashboard.allPoeme');
-						} else {
-							$scope.info = {
-								message: res.message,
-								type: 'danger'
-							};
-						}
-					});
+						})
+						.catch(function(err) {
+									$scope.info = {
+										message: err.message,
+										type: 'danger'
+									};
+						});
 				}
 			});
 
@@ -186,11 +190,11 @@
 
 	}
 
-	allPoemeController.$inject = ['$cookies', 'CurrentUser', 'Poeme', '$scope'];
+	allPoemeController.$inject = ['$cookies', 'CurrentUser', 'Poeme', '$scope', 'allPoems'];
 
-	function allPoemeController($cookies, CurrentUser, Poeme, $scope) {
+	function allPoemeController($cookies, CurrentUser, Poeme, $scope, allPoems) {
 		$scope.deletePoeme = deletePoeme;
-		$scope.poemlist = Poeme.query();
+		$scope.poemlist = allPoems;
 		$scope.config = {
 			itemsPerPage: 2,
 			fillLastPage: true
@@ -198,21 +202,17 @@
 
 		function deletePoeme(indicePoeme) {
 			var toDel = $scope.poemlist[indicePoeme];
-			Poeme.delete({ id: toDel._id }, function (res) {
-				if(res) {
+			Poeme.delete(toDel._id)
+				.then(function(res) {
 					$scope.poemlist.splice(indicePoeme, 1);
-				} else {
-					console.log("## non : ", res.message);
-				}
-
-			});
+				});
 		}
 
 	}
 
-	lastPoemeController.$inject = ['LastPoemes', '$scope'];
+	lastPoemeController.$inject = ['Poeme', '$scope'];
 
-	function lastPoemeController(LastPoemes, $scope) {
+	function lastPoemeController(Poeme, $scope) {
 		$scope.listPoeme;
 		$scope.poemToDisplay;
 		$scope.goToPoeme = goToPoeme;
@@ -220,9 +220,10 @@
 		$scope.rubricList = ['Dieureudieuf Serigne Bethio', 'L\'esprit universel', 'Histoire sacrées',
 			'Gatt Saf', 'Les plus appréciés', 'L\'originalité spiritelle'];
 
-		LastPoemes.query(function (list) {
-			$scope.listPoeme = list;
-		});
+		Poeme.lastPoemes()
+			.then(function(res) {
+				$scope.listPoeme = res;
+			});
 
 		function goToPoeme(poem) {
 			$scope.poemToDisplay = poem;
@@ -233,11 +234,22 @@
 
 	/***Functions auxiliaires********************************************/
 
-	getAPoem.$inject = ['Poeme', '$stateParams'];
+		getAPoem.$inject = ['Poeme', '$stateParams'];
+		function getAPoem(Poeme, $stateParams) {
+			return Poeme.get($stateParams.id)
+				.then(function(res) {
+					return res;
+				});
+		}
 
-	function getAPoem(Poeme, $stateParams) {
-		return Poeme.get({ id: $stateParams.id }).$promise;
-	}
+		getAllPoem.$inject = ['Poeme', '$stateParams'];
+		function getAllPoem(Poeme, $stateParams) {
+			return Poeme.getAll()
+				.then(function(res){
+					return res;
+				});
+		}
+
 
 	function initTofList(list) {
 		for(var i = 13; i >= 1; i--) {

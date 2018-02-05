@@ -50,7 +50,8 @@
 			var modalConfirm = myModal.confirm('app/common/modalView/confirm.html', 'sm');
 			modalConfirm.result.then(function (res) {
 				if (res) {
-					user.remove({id: userToDisplay._id}, function (res) {
+					user.remove(userToDisplay._id)
+						.then(function (res) {
 						if (res.code === 0) {
 							$state.go('dashboard.user.all');
 						} else {
@@ -73,7 +74,7 @@
 		$scope.cancel = cancel;
 		$scope.validateUser = validateUser;
 		$scope.deleteUser = deleteUser;
-		$scope.UpdateUser = UpdateUser;
+		$scope.updateUser = updateUser;
 
 		$scope.user = userToEdit;
 		$scope.message;
@@ -109,10 +110,10 @@
 			}
 		}
 
-		function UpdateUser() {
-			if ($scope.right !== rightObj[$scope.user.local.right]) {
+		function updateUser(right) {
+			if (right !== rightObj[$scope.user.local.right]) {
 				_.each(rightObj, function (value, key) {
-					if (value === $scope.right) {
+					if (value === right) {
 						$scope.user.local.right = key;
 					}
 				});
@@ -126,8 +127,8 @@
 
 		function validateUser() {
 			$scope.user.local.status = {code: 451, msg: "Actif"};
-			user.update({id: $scope.user._id}, $scope.user,
-					function (resp) {
+			user.update($scope.user._id, $scope.user)
+					.then(function (resp) {
 						if (resp.code === 0) {
 							$state.go('dashboard.user.show', {id: $scope.user._id});
 						} else {
@@ -148,10 +149,9 @@
 		}
 
 		function saveUser() {
-
 			if ($scope.userForm.$valid) {
-				user.update({id: $scope.user._id}, $scope.user,
-						function (resp) {
+				user.update($scope.user._id, $scope.user)
+						.then(function (resp) {
 							if (resp.code === 0) {
 								$state.go('dashboard.user.show', {id: $scope.user._id});
 							} else {
@@ -187,7 +187,8 @@
 			var modalConfirm = myModal.confirm('app/common/modalView/confirm.html', 'sm');
 			modalConfirm.result.then(function (res) {
 				if (res) {
-					user.remove({id: param._id}, function (res) {
+					user.remove(param._id)
+					 .then(function (res) {
 						if (res.code === 0) {
 							$state.reload();
 						} else {
@@ -205,29 +206,37 @@
 	//get a user by id
 	getAUser.$inject = ['user', '$stateParams'];
 	function getAUser(user, $stateParams) {
-		return user.get({id: $stateParams.id}).$promise;
+		return user.get($stateParams.id)
+			.then(function(res) {
+				return res;
+			});
 	}
 
 	//get all users
 	getAllUser.$inject = ['user'];
 	function getAllUser(user) {
-		return user.query().$promise;
+		return user.getAll()
+			.then(function(res) {
+				return res;
+			});
 	}
 
 	//get allpoeme by author
-	getPoemByAuthor.$inject = ['getPoemsByLabel', '$stateParams'];
-	function getPoemByAuthor(getPoemsByLabel, $stateParams) {
-		return getPoemsByLabel.get({key: "id_auteur", valu: $stateParams.id}).$promise;
+	getPoemByAuthor.$inject = ['Poeme', '$stateParams'];
+	function getPoemByAuthor(Poeme, $stateParams) {
+		return Poeme.getPoemsByLabel({key: "id_auteur", value: $stateParams.id})
+			.then(function(res) {
+				return res;
+			});
 	}
 
 	//deleteUser
-//	deleter.$inject = ['myModal', 'user', '$state', '$scope'];
 	function deleter(myModal, user, $state, $scope) {
-		console.log("-------------------------------------------");
 		var modalConfirm = myModal.confirm('app/common/modalView/confirm.html', 'sm');
 		modalConfirm.result.then(function (res) {
 			if (res) {
-				user.remove({id: $scope.user._id}, function (res) {
+				user.remove($scope.user._id)
+					.then(function (res) {
 					if (res.code === 0) {
 						$state.go("dashboard.user.all");
 					} else {
@@ -243,8 +252,8 @@
 
 	//updateUser
 	function upUser(user, $scope, $state) {
-		user.update({id: $scope.user._id}, $scope.user,
-				function (resp) {
+		user.update($scope.user._id, $scope.user)
+				.then(function (resp) {
 					if (resp.code === 0) {
 						$state.go('dashboard.user.show', {id: $scope.user._id});
 					} else {

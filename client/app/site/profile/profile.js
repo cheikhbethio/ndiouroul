@@ -53,9 +53,9 @@
 	}
 
 
-	profileEditController.$inject = ["_", "ProfileService", "myModal", "user", "$scope", "userToUp"]
+	profileEditController.$inject = ["_", "myModal", "user", "$scope", "userToUp"]
 
-	function profileEditController(_, ProfileService, myModal, user, $scope, userToUp) {
+	function profileEditController(_, myModal, user, $scope, userToUp) {
 		$scope.user = userToUp;
 		$scope.reseteditForm = reseteditForm;
 
@@ -73,11 +73,9 @@
 			$scope.user.local.lastname = "";
 			$scope.user.local.email = "";
 			$scope.user.local.phone = "";
-			console.log("user ", $scope.user);
 		}
 
 		function upUser(param) {
-			console.log(" *****Param***** ", param);
 			if($scope.pwdToggle && $scope.user.local.passwordConfirmation !== $scope.user.local.newPassword) {
 				$scope.info.message = "Les deux mot de passe ne sont pas les mêmes";
 				$scope.info.type = 'danger';
@@ -85,15 +83,12 @@
 			} else {
 				myModal.givePwd("app/common/modalView/pwdForm.html", "md")
 					.result.then(function (res) {
-						console.log("res modal : ", res);
 						$scope.user.local.login = res.login;
 						$scope.user.local.password = res.password;
-						console.log("********2222*******", $scope.user);
-						ProfileService.update({ id: $scope.user._id }, _.pick($scope.user.local, "email",
+						user.updateProfile($scope.user._id, _.pick($scope.user.local, "email",
 								"firstname", "idPic",
-								"lastname", "login", "newPassword", "password", "phone"),
-							function (res) {
-								console.log("======= : ", res);
+								"lastname", "login", "newPassword", "password", "phone"))
+							.then(function (res) {
 								if(res.code === 0) {
 									$scope.info.message = "Votre Profile est bien a bien été mis à jour";
 									$scope.info.type = 'success';
@@ -135,23 +130,29 @@
 
 	function getMe(user, CurrentUser) {
 		var my_id = CurrentUser.getId();
-		return user.get({ id: my_id }).$promise;
+		return user.get(my_id)
+			.then(function(res) {
+				return res;
+			});
 	}
 
 	//get allpoeme by author
-	getPoemByAuthor.$inject = ['getPoemsByLabel', 'CurrentUser'];
+	getPoemByAuthor.$inject = ['Poeme', 'CurrentUser'];
 
-	function getPoemByAuthor(getPoemsByLabel, CurrentUser) {
-		return getPoemsByLabel.get({ key: "id_auteur", valu: "577e12686f2c7ed4794451ad" }).$promise;
+	function getPoemByAuthor(Poeme, CurrentUser) {
+		return Poeme.getPoemsByLabel({ key: "id_auteur", value: CurrentUser.getId() })
+			.then(function(res) {
+				return res;
+			});
 	}
 
 	function upUser(user, $scope, $state) {
-		user.update({ id: $scope.user._id }, $scope.user,
-			function (resp) {
-				if(resp.code === 0) {
+		user.update($scope.user._id, $scope.user)
+			.then(function (res) {
+				if(res.code === 0) {
 					$state.go('dashboard.user.show', { id: $scope.user._id });
 				} else {
-					$scope.info.message = resp.message;
+					$scope.info.message = res.message;
 					$scope.info.type = 'danger';
 					$scope.info.showMessage = true;
 				}

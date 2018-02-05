@@ -1,4 +1,4 @@
-.contentRubrique{
+ .contentRubrique{
 	/*background-color: #FFF5EE;*/
 	height: 100%;
 	width: 100%;
@@ -11,9 +11,8 @@
   height: 100%;
 }
 /********************/
-
-.poemListPanel{
-	fle
+.poemListPanel {
+    flex-flow: row wrap;
 }
 
 .poemePanel{

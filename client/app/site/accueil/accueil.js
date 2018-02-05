@@ -11,8 +11,8 @@ angular.module('accueil', ['ui.router', 'angular-carousel', 'underscore'])
 				controller	: 'accueilController'
 			})
 	}])
-	.controller('accueilController', ['_', 'LastPoemes','CurrentUser', '$rootScope', '$scope', '$state', 'Poeme', 'myModal',
-		function(_, LastPoemes, CurrentUser, $rootScope, $scope, $state, Poeme, myModal){
+	.controller('accueilController', ['_', 'CurrentUser', '$rootScope', '$scope', '$state', 'Poeme', 'myModal',
+		function(_, CurrentUser, $rootScope, $scope, $state, Poeme, myModal){
 
 		$rootScope.confVariable.titre = "Thiantakones";
 		$rootScope.confVariable.isConnected =  CurrentUser.isLoggedIn();
@@ -25,10 +25,12 @@ angular.module('accueil', ['ui.router', 'angular-carousel', 'underscore'])
 		$scope.viewPoem = viewPoem;
 
 		function viewPoem(width, poemeId) {
-			Poeme.get({id: poemeId}, function (res) {
-				var poemToDisplay = res.result;
-				var poemModal = myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', poemToDisplay);
-			});
+			Poeme.get(poemeId)
+				.then(function(res){
+					var poemToDisplay = res.result;
+					myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', poemToDisplay);
+				});
+
 		}
 
 		function runAnim(elem){
@@ -43,11 +45,12 @@ angular.module('accueil', ['ui.router', 'angular-carousel', 'underscore'])
 			$state.go("site.rubrique", {id:id});
 		}
 
-		LastPoemes.query(function (list) {
-			$scope.lastPoeme = list;
-			var i = 0;
-			_.each(list, function(elem){
-				var imgObjet = {
+		Poeme.lastPoemes()
+			.then(function(res) {
+				$scope.lastPoeme = res;
+				var i = 0;
+				_.each(res, function(elem){
+					var imgObjet = {
 						_id: elem._id,
 						// label: 'slide #' + i,
 						img: elem.tof,
@@ -55,15 +58,9 @@ angular.module('accueil', ['ui.router', 'angular-carousel', 'underscore'])
 						title : elem.title,
 						lastname: elem.id_auteur.local.lastname,
 						firstname : elem.id_auteur.local.firstname
-				};
-				$scope.slides.push(imgObjet);
+					};
+					$scope.slides.push(imgObjet);
+				});
 			});
-		});
-
-		// $scope.addSlide = addSlide;
-		// $scope.goToPoeme = goToPoeme;
-		// function goToPoeme(poem) {
-		// 	$scope.poemToDisplay = poem;
-		// }
 
 	}]);

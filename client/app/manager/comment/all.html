@@ -13,7 +13,7 @@
 				<input id="page_search" type="text" class="form-control" ng-model="commentShearch" placeholder="Votre recherche">
 			</div>
 		</form>
-		
+
 	</div>
 
 	<table class="table table-hover table-striped">
@@ -50,13 +50,13 @@
 		<tbody>
 			<tr ng-repeat="comment in commentList  | filter:commentShearch track by $index">
 
-				<td> <a  ui-sref="dashboard.showPoeme({id : comment.id_poeme._id})">{{comment.id_poeme.title}}</a> </td>
+				<td> <a  ui-sref="dashboard.showComment({id : comment._id})">{{comment.id_poeme.title}}</a> </td>
 
 				<td>{{comment.id_author.local.lastname}}  &nbsp; {{comment.id_author.local.firstname}}</td>
 
 				<td> {{comment.date | date :'fullDate'}} </td>
-				
-				<td> 
+
+				<td>
 					<span ng-if="comment.denounced"  class="glyphicon glyphicon-remove " aria-hidden="true"></span>
 					<span ng-if="!comment.denounced"  class="glyphicon glyphicon-ok " aria-hidden="true"></span>
 				</td>

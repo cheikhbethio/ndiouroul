@@ -1,17 +1,40 @@
-var userService = angular.module('userService', ['ngResource']);
+var userService = angular.module('userService', []);
 
-userService.factory('user', ['$resource', function ($resource) {
-		return $resource('api/users/:id', {}, {
-			query: {method: 'GET', isArray: true},
-			get: {method: 'GET'},
-			save: {method: 'POST'},
-			update: {method: 'PUT', isArray: false},
-			remove: {method: 'DELETE'}
-		});
-	}]);
+userService.factory('user', ['$http', function ($http) {
 
-userService.factory('ProfileService', ['$resource', function ($resource) {
-		return $resource('api/profile/:id', {}, {
-			update: {method: 'PUT', isArray: false},
-		});
+	return {
+		save : function(data){
+			return $http.post("api/users", data)
+				.then(thenFunction)
+		},
+		get : function(id){
+			return $http.get("api/users/" + id)
+				.then(thenFunction)
+		},
+		getAll : function(){
+			return $http.get("api/users")
+				.then(thenFunction);
+		},
+		update : function(id, data){
+			return $http.put("api/users/" + id, data)
+				.then(thenFunction)
+		},
+		updateProfile : function(id, data){
+			return $http.put("api/profile/" + id, data)
+				.then(thenFunction)
+		},
+		remove : function(id){
+			return $http.delete("api/users/" + id)
+				.then(function thenFunction(res) {
+					return res.data;
+				})
+		}
+
+
+	}
+
+	function thenFunction(res) {
+		return res.data;
+	}
+
 	}]);

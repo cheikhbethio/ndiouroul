@@ -10,7 +10,7 @@ var status = {
 };
 
 var myUrl = {
-	princiaplURL: "http://137.74.172.146:8000/#/",
+	princiaplURL: "http://localhost:8000/#/",
 	emailValidation: "registration?validation="
 };
 

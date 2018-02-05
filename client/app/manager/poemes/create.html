@@ -1,59 +1,59 @@
 <div class="ProemeCreate row">
-		
+
 <my-info info='info'></my-info>
 
     <h2 class="page-header col-sm-5  col-sm-offset-3">Rédaction de Poème</h2>
 
-    <form name="createPoemeForm" class="col-sm-8 col-sm-offset-2">
+    <form name="createPoemeForm" class="col-sm-8 col-sm-offset-2" novalidate>
         <div class="row">
         <!-- title -->
-            <div class="form-group input-group" novalidate>
+            <div class="form-group input-group" ng-class="{ 'has-error': createPoemeForm.title.$invalid}">
                 <span for="title" class="input-group-addon">
                     <span class="glyphicon glyphicon-tower" aria-hidden="true"></span>
                 </span>
-                <input class="form-control" name="title" type="text" id="title" placeholder="Titre du poeme" 
-                ng-model="newPoeme.title" required>
+                <input class="form-control" name="title" type="text" id="title" placeholder="Titre du poeme"
+                ng-model="newPoeme.title" ng-required="true" ng-minlength="5">
             </div>
-            
+
             <!-- from -->
-            <div class="form-group input-group" aria-hidden="true">
+            <div class="form-group input-group" aria-hidden="true" ng-class="{ 'has-error': createPoemeForm.from.$invalid}">
                 <span  for="from" class="input-group-addon">
-                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span> 
+                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                 </span>
-                <input class="form-control" name="from" type="text" id="from" placeholder="de quel livre est tiré ce poème" ng-model="newPoeme.from">
+                <input class="form-control" name="from" type="text" id="from" placeholder="de quel livre est tiré ce poème" ng-model="newPoeme.from" ng-required="true" ng-minlength="5">
             </div>
-            
+
             <!-- tof -->
-            <div class="form-group input-group" aria-hidden="true" ng-click="showModalTof()">
+            <div class="form-group input-group" aria-hidden="true" ng-click="showModalTof()" ng-class="{'has-error' : !newPoeme.tof}">
                 <span  for="tof" class="input-group-addon">
-                    <span class="glyphicon glyphicon-picture" aria-hidden="true"></span> 
+                    <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                 </span>
 
-                <input class="form-control" name="tof" ng-disabled="true" type="text" id="tof" placeholder=" Cliquez sur l'icone de gauche pour choissir la photo du poême">
+                <button type="button" name="button" class="form-control">
+                    <span>{{newPoeme.tof ? "Voulez vous changer de photo" : "Choisir une photo"}}</span>
+                </button>
             </div>
-            
+
             <!-- rubric -->
-            <div class="form-group input-group" aria-hidden="true">
+            <div class="form-group input-group" aria-hidden="true" ng-class="{ 'has-error': !newPoeme.rubric }">
                 <span  for="rubric" class="input-group-addon">
-                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span> 
+                    <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                 </span>
-              <select class="form-control" ng-options="rubric for rubric in rubricList" ng-model="newPoeme.rubric"></select>
+              <select class="form-control" ng-options="rubric for rubric in rubricList" ng-model="newPoeme.rubric" ng-required="true"></select>
             </div>
-            
+
         </div>
 
+        <text-angular name="content" ng-model="newPoeme.content" ng-required="true"  ng-minlength="100" ng-class="{ 'has-error': createPoemeForm.content.$invalid }"></text-angular>
 
-        <text-angular ng-model="newPoeme.content" required></text-angular>
-		
-        <button class="btn btn-primary pull-right" ng-click="addPoeme()"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Sauvegarder</button>
+        <button class="btn btn-primary pull-right" ng-click="addPoeme()" ng-disabled="createPoemeForm.$invalid"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Sauvegarder</button>
 
         <div class="checkbox pull-right" style="margin-right: 15px">
             <label>
-                <input type="checkbox" ng-model="newPoeme.isPublic"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Publier maintenant? 
+                <input type="checkbox" ng-model="newPoeme.isPublic"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Publier maintenant?
             </label>
         </div>
 
     </form>
 
 </div>
-

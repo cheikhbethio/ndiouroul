@@ -11,10 +11,10 @@ angular.module('pgdApp', [
 	'accueil',
 	'rubrique',
 	'connexion',
-	'connectionService',
 	'registration',
 	'profile',
 	'allPoems',
+	"connectionService",
 	//	management
 	'management',
 	'manAccueil',
@@ -80,6 +80,6 @@ angular.module('pgdApp', [
 					}
 				});
 			}])
-	.run(function (connectionRedirection) {
-		connectionRedirection.dashboard();
+	.run(function (connectionFactory) {
+		connectionFactory.connectionRedirection.dashboard();
 	});

@@ -6,7 +6,6 @@
 			$stateProvider
 				.state('site.allPoems', {
 					url: '/allPoems',
-					// templateUrl: 'app/site/allPoems/all.html',
 					templateUrl: 'app/site/rubrique/rubrique.html',
 					controller: 'allPoemsController'
 				})
@@ -18,15 +17,17 @@
 	function allPoemsController($scope, Poeme, myModal) {
 		$scope.viewPoem = viewPoem;
 		function viewPoem(width, poemeId) {
-			Poeme.get({id: poemeId}, function (res) {
-				$scope.poemToDisplay = res.result;
-				var poemModal = myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', $scope.poemToDisplay);
-			});
+			Poeme.get(poemeId)
+				.then(function(res) {
+					$scope.poemToDisplay = res.result;
+					var poemModal = myModal.viewPoem('app/manager/poemes/modals/poemeVue.html', 'lg', $scope.poemToDisplay);
+				});
 		}
 
-		Poeme.query({}, function (res) {
-			$scope.poemlist = res;
-		})
+		Poeme.getAll()
+		 	.then(function(res) {
+				$scope.poemlist = res;
+			});
 	}
 
 })()

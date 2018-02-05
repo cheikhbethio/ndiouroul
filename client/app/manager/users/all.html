@@ -14,39 +14,34 @@
 				<input id="page_search" type="text" class="form-control" ng-model="userShearch" placeholder="Votre recherche">
 			</div>
 		</form>
-		
+
 	</div>
 
 	<table class="table table-hover table-striped">
 		<thead>
 			<tr>
-
 				<th>
 					<span class="glyphicon glyphicon-user"></span>
 					<span class="">Nom et prenom</span>
 				</th>
-
 				<th>
 					<span class="glyphicon glyphicon-log-in"></span>
 					<span class="">Login</span>
 				</th>
-
 				<th>
 					<span class="glyphicon glyphicon-log-in"></span>
 					<span class="">Statut</span>
 				</th>
-
 				<th>
 					<span class=" glyphicon glyphicon-cog "></span>
 					<span class="">Actions</span>
 				</th>
-
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-repeat="user in usersList  | filter:userShearch track by $index">
 
-				<td> 
+				<td>
 					<a  ui-sref="dashboard.user.show({id : user._id})">
 						{{user.local.lastname}} &nbsp;{{user.local.firstname}}
 					</a>

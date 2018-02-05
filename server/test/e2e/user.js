@@ -408,7 +408,7 @@ describe("User tests", function () {
 
 		it("with a valid key for a found user", function() {
 			return request(app)
-				.get(url+"/"+this.userId1 + "/validation?key=" + this.hashkey)
+				.get(url+"/validation?key=" + this.hashkey)
 				.expect(201)
 				.then((response) => {
 					expect(response.body).to.deep.equal({
@@ -428,7 +428,7 @@ describe("User tests", function () {
 
 		it("withno found user", function() {
 			return request(app)
-				.get(url+"/"+this.userId1 + "/validation?key=" + "badkey")
+				.get(url+ "/validation?key=" + "badkey")
 				.expect(400)
 				.then((response) => {
 					expect(response.body).to.deep.equal({

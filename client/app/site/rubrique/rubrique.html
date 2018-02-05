@@ -2,7 +2,6 @@
 
 	<div class="row listPoeme">
 
-			<my-info info='info'></my-info>
 
 			<div class="searchPoemAll layout-column layout-align-center-center">
 				<div class="form-group" style="width:300px">
@@ -15,7 +14,9 @@
 
 			</div>
 
-			<div class="poemListPanel layout-row layout-align-center-cente" style="border: solid">				
+			<my-info info='info'></my-info>
+			
+			<div class="poemListPanel layout-row layout-align-space-around-center">
 				<div class="poemePanelContainer xcol-sm-4"  ng-repeat="poeme in poemlist | filter:searchPoem track by $index">
 					<div class="poemePanel panel panel-primary">
 					    <div class="poemePanelHeading panel-heading">

@@ -1,54 +1,68 @@
 "use strict";
-angular.module("registration", ["ui.router"])
-		.config(["$stateProvider", function ($stateProvider) {
+
+(function(){
+
+angular.module('registration', ['ui.router'])
+		.config(['$stateProvider', function ($stateProvider) {
 				$stateProvider
-						.state("site.registration", {
-							url: "/registration?validation",
-							templateUrl: "app/site/sign/registration.html",
-							controller: "registrationController"
+						.state('site.registration', {
+							url: '/registration?validation',
+							templateUrl: 'app/site/sign/registration.html',
+							controller: 'registrationController'
 						});
 			}])
-		.controller("registrationController", ["$stateParams", "$rootScope", "$scope", "$state", "SignUp", "Validation",
-			function ($stateParams, $rootScope, $scope, $state, SignUp, Validation) {
+		.controller('registrationController', ['$stateParams', '$rootScope', '$scope', '$state',
+			'connectionFactory',
+			function ($stateParams, $rootScope, $scope, $state, connectionFactory) {
 
-				$rootScope.titre = "Thiantakones";
 				$scope.newUser = {};
+				$scope.info = {};
+				$scope.registrationForm= {};
+				$scope.info.showMessage = false;
 				$scope.showValidation = false;
-				$scope.registrationForm={};
-				$scope.validation = $stateParams.validation;
-				if ($scope.validation) {
+				$rootScope.titre = "Thiantakones";
+
+				$scope.saveNewUser = saveNewUser;
+				$scope.resetRegistrationForm = resetRegistrationForm;
+
+				if ($stateParams.validation) {
 					$scope.showValidation = true;
-					Validation.getToken({id: $scope.validation}, function (res) {
-					});
+					connectionFactory.signUpValidation($stateParams.validation);
 				}
 
-				$scope.info = {};
-				$scope.info.showMessage = false;
-				$scope.saveNewUser = function (newer) {
-						if (newer.password === newer.passwordConfirmation) {
-							delete newer.passwordConfirmation;
-							SignUp.save(newer, function (resp) {
-								if (resp.code === 201) {
-									$scope.info.message = resp.message;
-									$state.go("site.connexion", {registration: true});
-								} else {
-									$scope.info.message = resp.message;
-									$scope.info.type = "danger";
-									$scope.info.showMessage = true;
-								}
-							}, function (error) {
-								$scope.info.message = "un probleme s'est produit. L'enregistrement est temporairement impossible";
-								$scope.info.type = "danger";
-								$scope.info.showMessage = true;
-							});
-						} else {
-							$scope.info.message = "les deux mots de passe ne sont pas identiques. Veillez réessayer!!";
-							$scope.info.showMessage = true;
-							$scope.info.type = "danger";
-						}
 
-				};
-				$scope.resetRegistrationForm = function () {
+				function saveNewUser(newer) {
+					var message;
+						if (newer.password === newer.passwordConfirmation) {
+							return connectionFactory.signUp(newer)
+								.then(function (resp) {
+									if (resp.code === 201) {
+										$scope.info.message = resp.message;
+										$state.go('site.connexion', {registration: true});
+									} else {
+										fillInfo(resp.message, "danger", true);
+									}
+								})
+								.catch(function (error) {
+										message : "un probleme s'est produit. L'enregistrement est temporairement impossible";
+										fillInfo(message, "danger", true);
+									});
+						}
+						message : "les deux mots de passe ne sont pas identiques. Veillez réessayer!!",
+						fillInfo(message, "danger", true);
+				}
+
+				function resetRegistrationForm() {
 					$scope.newUser = {};
-				};
+				}
+
+				function fillInfo(message, type, showMessage){
+					$scope.info = {
+						message : message,
+						type : type,
+						showMessage : showMessage
+					};
+				}
+
 			}]);
+})();
