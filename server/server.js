@@ -31,7 +31,7 @@ mongoose.Promise = global.Promise;
 // on recup les variables
 
 //starting server port
-app.use(express.static(path.join(application_root, "../client")));
+app.use(express.static(path.join(application_root, "../public")));
 
 app.set("trust proxy", 1); // trust first proxy
 // require("./config/passport.js")(passport);

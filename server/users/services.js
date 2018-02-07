@@ -189,7 +189,7 @@ function runUpdate(req, res, properties){
 }
 
 function getKeyValidation(req, res){
-	userDbAccess.findOne({ "hashkey": req.body.key })
+	userDbAccess.findOne({ "hashkey": req.query.key })
 		.then((user) => {
 			if (_.isEmpty(user)){
 				return metiers.quitWithFailure(req, res, responseMsg.failure.getKeyValidation.invalidAccount, 400);
@@ -207,8 +207,8 @@ function runKeyValidation(res, user){
 	user.hashkey = undefined;
 	return user.save()
 		.then(() => {
-			theMailer.emailSender(myVar.forMail.admin, myVar.forMail.signUpValidation.subject, myVar.forMail
-				.signUpValidation.text);
+			theMailer.emailSender(myVar.forMail.admin, myVar.forMail.signUpValidation.subject,
+				myVar.forMail.signUpValidation.text);
 			return res.status(201).json({
 				code :201,
 				message : responseMsg.failure.getKeyValidation.validation
